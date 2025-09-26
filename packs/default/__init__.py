@@ -87,7 +87,7 @@ class DefaultTransition(Transition):
     def draw(self):
         if self.state.show_transition_success and self.state.display_time <= 1.0:
             text = "WELLDONE" if self.state.has_game_succeeded else "YOU FAILED"
-        elif self.state.is_speedup and self.state.display_time >= 3.0:
+        elif self.state.is_speedup and self.state.display_time >= 2.0:
             text = "SPEEDUP!!!"
         else:
             text = "TRANSITION"
