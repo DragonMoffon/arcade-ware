@@ -122,7 +122,7 @@ class PlayState:
         return self._source.active_game_succeeded is not None
     
     @property
-    def has_game_succeeded(self) -> bool:
+    def has_game_succeeded(self) -> bool | None:
         # was the game currently playing or just played won?
         return self._source.active_game_succeeded
     

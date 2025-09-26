@@ -14,7 +14,7 @@ class ShakeEmUp(Game):
     def __init__(self, state: PlayState) -> None:
         super().__init__(state, prompt = "SHAKE!", controls = "move_mouse_click", duration = 4.0, success_duration = None)
         self.box = arcade.SpriteSolidColor(100, 100, self.state.screen_width / 2, self.state.screen_height / 2)
-        self.text = arcade.Text("0 SHAKES!", self.state.screen_width / 2, 100, anchor_x='center', anchor_y='center')
+        self.text = arcade.Text("0 SHAKES!", self.state.screen_width / 2, 100, anchor_x='center', anchor_y='center', font_size = 26)
         self.dragging: bool = False
         self.sep: tuple[float, float] = (0.0, 0.0)
         self.shakes: int = 0
@@ -35,6 +35,7 @@ class ShakeEmUp(Game):
         self.shake_goal = 30
         self.motion_dir = None
         self.player = self.sound.play(0.0) # Setting the speed does nothing?
+        self.text.text = "0 SHAKES!"
 
     def finish(self):
         if self.player is not None:
@@ -42,11 +43,6 @@ class ShakeEmUp(Game):
             self.player = None
     
     def draw(self):
-        self.text.text = f"{self.shakes} SHAKES!"
-        p = self.shakes / self.shake_goal
-        c = int(255 * max(0.0, 1.0 - p))
-        self.text.color = (255, c, c)
-        self.text.font_size = 12 * (1 - p) + p * 36
         self.text.draw()
         arcade.draw_sprite(self.box)
 
@@ -77,6 +73,11 @@ class ShakeEmUp(Game):
                     # The motion of the mouse has switched so we have shaken once.
                     self.shakes += 1
                     self.motion_dir = dx, dy
+                    self.text.text = f"{self.shakes} SHAKES!"
+                    p = self.shakes / self.shake_goal
+                    c = int(255 * max(0.0, 1.0 - p))
+                    self.text.color = (255, c, c)
+                    # self.text.font_size = 12 * (1 - p) + p * 36
 
 
 class JuggleTheBall(Game):
