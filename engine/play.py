@@ -6,8 +6,8 @@ from arcade import View as ArcadeView
 from arcade.clock import Clock
 
 MAX_STRIKE_COUNT = 4
-SPEED_INCREASE_GAME_COUNT = 10
-SPEED_INCREASE_STEP_SIZE = 1.0
+SPEED_INCREASE_GAME_COUNT = 5
+SPEED_INCREASE_STEP_SIZE = 0.1
 
 class Display:
     # TODO: seperate the game state from the game view
@@ -23,7 +23,10 @@ class Display:
     def create(cls, state: PlayState) -> Self:
         raise NotImplementedError()
 
-    def setup(self):
+    def start(self):
+        pass
+
+    def finish(self):
         pass
 
     def draw(self):
@@ -73,14 +76,17 @@ class PlayState:
 
     @property
     def cursor_position(self):
+        # Position of the mouse cursor on screen
         return self._source.cursor_position
     
     @property
     def screen_width(self):
+        # Screen width (may eventually not be the whole screen if there are frames)
         return self._source.width
     
     @property
     def screen_height(self):
+        # Screen height (may eventually not be the whole screen if there are frames)
         return self._source.height
 
     @property
@@ -95,55 +101,72 @@ class PlayState:
 
     @property
     def strikes(self) -> int:
+        # How many game's have been failed
         return self._source.strikes
+    
+    @property
+    def tick_speed(self) -> float:
+        return self._source.tick_speed
 
     @property
     def on_last_life(self) -> bool:
+        # Utill bool to check for last life
         return self._source.strikes == MAX_STRIKE_COUNT - 1
     
     @property
-    def game_finished(self) -> bool:
+    def has_game_finished(self) -> bool:
+        # has the game currently playing or just played finish?
         return self._source.active_game_succeeded is not None
     
     @property
-    def game_succeeded(self) -> bool:
+    def has_game_succeeded(self) -> bool:
+        # was the game currently playing or just played won?
         return self._source.active_game_succeeded
     
     def set_game_succeeded(self, succeeded: bool):
+        # Finish the current game and say wether it is done.
         self._source.game_succeeded(succeeded)
 
     @property
     def success_duration(self) -> float | None:
+        # How long should the game be lingered on to show the success screen
         return self._source.success_duration
     
     @property
     def show_transition_success(self) -> bool:
+        # Should the transition show that the game was a success?
         return not self._source.success_duration
     
     @property
     def is_speedup(self) -> bool:
+        # Is the next game a speedup?
         return self._source.count != 0 and self._source.count % SPEED_INCREASE_GAME_COUNT == 0
     
     @property
     def total_time(self) -> float:
+        # Total amount of time the current session has been running
         return self._source.play_clock.time
     
     @property
     def start_time(self) -> float:
+        # The time that the current display was shown
         return self._source.display_time
 
     @property
     def display_time(self) -> float:
+        # The time elapsed since the current display was shown
         return self._source.play_clock.time - self._source.display_time
     
     @property
     def next_prompt(self):
+        # What is the prompt for the next game
         if self._source.next_game is None:
             return ""
         return self._source.next_game.prompt
 
     @property
     def next_controls(self):
+        # what are the controls for the next game
         if self._source.next_game is None:
             return ""
         return self._source.next_game.controls
@@ -158,6 +181,7 @@ class PlayView(ArcadeView):
 
         self.count = 0  # number of games played
         self.speed = 0  # speedups
+        self.tick_speed = 0.0 # Actual speed scalar
         self.strikes = 0  # number of games failed
 
         # The active display is the type indifferent version of active game and counter
@@ -224,27 +248,27 @@ class PlayView(ArcadeView):
         if self._next_game is None:
             self._next_game = self.pick_game()
 
+        if self._active_display is not None:
+            self._active_display.finish()
+    
         if self._active_transition is None or self._active_display is None:
             # show transition as either the first display, or after a game.
             transition = self.pick_transition()
             self._active_game = None # TODO: do we need a cleanup function?
             self._active_transition = self._active_display = transition
-        elif self._active_game is None:
+        else:
             # Show a game after a transition.
             if self.state.is_speedup:
                 # This works because we:
                 # iterate the count -> move to transition -> speed up -> move to game
                 self.speedup_game()
-            self._active_transition = None
+            self._active_transition = self.active_game_succeeded = None
             self._active_game = self._active_display = self._next_game
             self.success_duration = self._active_game.success_duration
             self._next_game = self.pick_game()
             # setup the next display.
         self.display_time = self.play_clock.time
-        self._active_display.setup()
-        
-        # ! this assumes one of the two cases above occured. It shouldn't be possible
-        # ! for this to not be true, but i'm leaving this note incase weirdness.
+        self._active_display.start()
         
     def pick_transition(self) -> Transition:
         shuffle(self._transition_bag)
@@ -273,7 +297,9 @@ class PlayView(ArcadeView):
         self.active_game_succeeded = succeeded
 
     def speedup_game(self):
-        self.play_clock.set_tick_speed(1.0 + self.speed * SPEED_INCREASE_STEP_SIZE)
+        self.speed += 1
+        self.tick_speed = 1.0 + self.speed * SPEED_INCREASE_STEP_SIZE
+        self.play_clock.set_tick_speed(self.tick_speed)
 
     def on_update(self, delta_time: float) -> bool | None:
         self.play_clock.tick(delta_time)
