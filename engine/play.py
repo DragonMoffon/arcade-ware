@@ -56,7 +56,7 @@ class Game(Display):
     def fail(self):
         self.state.set_game_succeeded(False)
 
-    def on_time_runout(self, state: PlayState):
+    def on_time_runout(self):
         self.fail()
 
     def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
@@ -314,8 +314,9 @@ class PlayView(ArcadeView):
         if self._active_game is None:
             raise ValueError('There is no active game to update.')
 
+        # TODO: this will be called every frame after the game is technically finished which we don't want.
         if self.state.display_time >= self._active_game.duration:
-            self._active_game.on_time_runout(self.state)
+            self._active_game.on_time_runout()
 
         overtime = False
         if self._active_game.success_duration:

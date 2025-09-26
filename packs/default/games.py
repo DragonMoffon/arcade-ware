@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from random import random
+from math import copysign
+from typing import Self
 
 import arcade
 
@@ -52,7 +54,7 @@ class ShakeEmUp(Game):
         if self.player is not None:
             self.player.volume = min(1.0, self.shakes / self.shake_goal)
 
-    def on_time_runout(self, state: PlayState):
+    def on_time_runout(self):
         if self.shakes >= self.shake_goal:
             self.succeed()
             return
@@ -77,3 +79,57 @@ class ShakeEmUp(Game):
                     self.motion_dir = dx, dy
 
 
+class JuggleTheBall(Game):
+    
+    def __init__(self, state: PlayState) -> None:
+        super().__init__(state, "JUGGLE!", "move_mouse_click", 8.0)
+        self.balls: arcade.SpriteList[arcade.Sprite] = arcade.SpriteList()
+        self.balls.extend((arcade.SpriteCircle(25, (255, 255, 255, 255), center_x=self.state.screen_width/2, center_y=self.state.screen_height/2) for _ in range(3)))
+
+    @classmethod
+    def create(cls, state: PlayState) -> Self:
+        return cls(state)
+
+    def start(self):
+        for ball in self.balls:
+            ball.position = self.state.screen_width * random(), 0.6666 * self.state.screen_height
+            ball.change_x = (random() * 2.0 - 1.0) * 400
+            # Will always be positive but that's fine
+            ball.change_y = (400**2 - ball.change_x**2)**0.5
+
+    def on_time_runout(self):
+        self.succeed()
+
+    def update(self, delta_time: float):
+        for ball in self.balls:
+            pos = ball.position
+            ball.change_y = ball.change_y - 400 * delta_time
+            ball.position = pos[0] + ball.change_x * delta_time, pos[1] + ball.change_y * delta_time
+            if ball.center_x <= 25:
+                ball.center_x = 25
+                ball.change_x = copysign(ball.change_x, 1.0)
+            elif ball.center_x >= self.state.screen_width - 25:
+                ball.center_x = self.state.screen_width - 25
+                ball.change_x = copysign(ball.change_x, -1.0)
+
+            if ball.center_y < 25:
+                self.fail()
+                return
+
+    def on_input(self, symbol: int, modifier: int, pressed: bool):
+        if symbol == arcade.MOUSE_BUTTON_LEFT:
+            cursor = self.state.cursor_position
+            closest_ball = None
+            dist = float('inf')
+            for ball in self.balls:
+                diff = (ball.center_x - cursor[0])**2 + (ball.center_y - cursor[1])
+                if diff < dist:
+                    closest_ball = ball
+                    dist = diff
+            if closest_ball is None:
+                return
+            if dist < 30**2:
+                closest_ball.change_y = 360
+    def draw(self):
+        self.balls.draw()
+        
