@@ -2,12 +2,15 @@ from __future__ import annotations
 from typing import Self
 from random import shuffle
 
-from arcade import View as ArcadeView
+from arcade import Vec2, View as ArcadeView
 from arcade.clock import Clock
+
+from aware.bar import TimeBar
 
 MAX_STRIKE_COUNT = 4
 SPEED_INCREASE_GAME_COUNT = 5
 SPEED_INCREASE_STEP_SIZE = 0.1
+COUNTDOWN_TIME = 3
 
 class Display:
     # TODO: seperate the game state from the game view
@@ -158,6 +161,11 @@ class PlayState:
         return self._source.play_clock.time - self._source.display_time
     
     @property
+    def remaining_time(self) -> float:
+        # The time left for the current game
+        return self._source._active_game.duration - (self._source.play_clock.time - self._source.display_time) if self._source._active_game else float("inf")
+
+    @property
     def next_prompt(self):
         # What is the prompt for the next game
         if self._source.next_game is None:
@@ -216,6 +224,8 @@ class PlayView(ArcadeView):
         self._game_bag: list[Game] = list(self._games)
         self._pick_transitions_bagged: bool = False
         self._transition_bag: list[Transition] = list(self._transitions)
+
+        self.remaining_bar = TimeBar(Vec2(self.width, 68))
 
     @property
     def cursor_position(self):
@@ -305,6 +315,7 @@ class PlayView(ArcadeView):
         self.play_clock.tick(delta_time)
         if self._active_game is not None:
             self.update_game(self.play_clock.delta_time)
+            self.remaining_bar.percentage = min(1, self.state.remaining_time / COUNTDOWN_TIME)
             return
         elif self._active_transition is not None:
             self.update_transition(self.play_clock.delta_time)
@@ -350,6 +361,8 @@ class PlayView(ArcadeView):
         self.clear()
         if self.active_display:
             self.active_display.draw()
+        if self.active_game and self.state.remaining_time <= COUNTDOWN_TIME:
+            self.remaining_bar.draw()
 
     def on_key_press(self, symbol: int, modifiers: int) -> bool | None:
         if self.active_game is None:
