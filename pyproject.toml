@@ -1,0 +1,19 @@
+[project]
+name = "ardade-ware"
+version = "0"
+description = "A simple warioware-esk engine built in python arcade"
+readme = "README.md"
+authors = [
+    { name = "DragonMoffon" }, { name = "DigiDuncan" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    # "License :: OSI Approved :: MIT License"
+]
+requires-python = ">= 3.12"
+dependencies = [
+    "arcade @ git+https://github.com/pythonarcade/arcade@development",
+    "platformdirs==1.4.3",
+    "digiformatter==0.5.7.2",
+]
