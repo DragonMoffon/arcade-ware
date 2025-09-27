@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from arcade import load_sound, Sound
+from arcade import load_sound, load_texture, load_spritesheet, Sound, Texture, SpriteSheet
 
 __all__ = (
     "load_resources",
@@ -42,15 +42,26 @@ class ResourceMap:
         return self.get(target)
 
 SOUND_MAP = ResourceMap()
+TEXTURE_MAP = ResourceMap()
 EXTENSION_MAP: dict[str, ResourceMap] = {
     "wav": SOUND_MAP,
     "mp3": SOUND_MAP,
-    "ogg": SOUND_MAP
+    "ogg": SOUND_MAP,
+    "png": TEXTURE_MAP,
+    "jpg": TEXTURE_MAP 
 }
 
 def get_sound(target: str) -> Sound:
     pth = SOUND_MAP[target]
     return load_sound(pth)
+
+def get_texture(target: str) -> Texture:
+    pth = TEXTURE_MAP[target]
+    return load_texture(pth)
+
+def get_spritesheet(target: str) -> SpriteSheet:
+    pth = TEXTURE_MAP[target]
+    return load_spritesheet(pth)
 
 def load_resources() -> None:
     pth = Path().absolute() / "resources"

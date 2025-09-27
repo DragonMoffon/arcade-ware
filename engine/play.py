@@ -2,8 +2,10 @@ from __future__ import annotations
 from typing import Self
 from random import shuffle
 
-from arcade import Vec2, View as ArcadeView
+from arcade import Vec2, Text, Sprite, View as ArcadeView, draw_sprite
 from arcade.clock import Clock
+
+from engine.resources import get_texture
 
 from aware.bar import TimeBar
 
@@ -11,6 +13,10 @@ MAX_STRIKE_COUNT = 4
 SPEED_INCREASE_GAME_COUNT = 5
 SPEED_INCREASE_STEP_SIZE = 0.1
 COUNTDOWN_TIME = 3
+PROMPT_START = 1.0
+PROMPT_END = 0.5
+CONTROL_START = 1.0
+CONTROL_END = 0.5
 
 class Display:
     # TODO: seperate the game state from the game view
@@ -69,7 +75,7 @@ class Game(Display):
         pass
 
 # TODO
-class FailScreen(Display):
+class Fail(Display):
     pass
 
 class PlayState:
@@ -110,6 +116,10 @@ class PlayState:
     @property
     def tick_speed(self) -> float:
         return self._source.tick_speed
+    
+    @property
+    def has_play_finished(self) -> bool:
+        return self._source.play_over
 
     @property
     def on_last_life(self) -> bool:
@@ -163,7 +173,9 @@ class PlayState:
     @property
     def remaining_time(self) -> float:
         # The time left for the current game
-        return self._source._active_game.duration - (self._source.play_clock.time - self._source.display_time) if self._source._active_game else float("inf")
+        if self._source.active_display is None:
+            return float('inf')
+        return self._source.active_display.duration - (self._source.play_clock.time - self._source.display_time)
 
     @property
     def next_prompt(self):
@@ -182,15 +194,18 @@ class PlayState:
 
 class PlayView(ArcadeView):
     
-    def __init__(self, games: tuple[type[Game], ...], transitions: tuple[type[Transition], ...]):
+    def __init__(self, games: tuple[type[Game], ...], transitions: tuple[type[Transition], ...], fails: tuple[type[Fail], ...]):
         ArcadeView.__init__(self)
         # Store the cursor position incase either the Game or Transition want to use it.
         self._cursor_position: tuple[float, float] = (0.0, 0.0)
 
         self.count = 0  # number of games played
         self.speed = 0  # speedups
-        self.tick_speed = 0.0 # Actual speed scalar
+        self.tick_speed = 1.0 # Actual speed scalar
         self.strikes = 0  # number of games failed
+
+        # The play is over so let's show the FailDisplay
+        self.play_over: bool = False
 
         # The active display is the type indifferent version of active game and counter
         # do we need both? maybe not, but keeping them seperate gives us more control.
@@ -218,14 +233,17 @@ class PlayView(ArcadeView):
         # The list of possible games/counters to pick from
         self._games: tuple[Game, ...] = tuple(game.create(self.state) for game in games)
         self._transitions: tuple[Transition, ...] = tuple(transition.create(self.state) for transition in transitions)
+        self._fail: tuple[Fail, ...] = tuple(fail.create(self.state) for fail in fails)
 
         # Whether or not to use bags to pick which game/transition to use.
-        self._pick_games_bagged: bool = False
+        self._pick_games_bagged: bool = True
         self._game_bag: list[Game] = list(self._games)
         self._pick_transitions_bagged: bool = False
         self._transition_bag: list[Transition] = list(self._transitions)
 
         self.remaining_bar = TimeBar(Vec2(self.width, 68))
+        self.prompt_text = Text('PROMPT!', self.center_x, self.center_y+30, anchor_x="center", anchor_y="center")
+        self.control_icon = Sprite(None, center_x=self.center_x, center_y=self.center_y+60)
 
     @property
     def cursor_position(self):
@@ -264,8 +282,10 @@ class PlayView(ArcadeView):
         if self._active_transition is None or self._active_display is None:
             # show transition as either the first display, or after a game.
             transition = self.pick_transition()
-            self._active_game = None # TODO: do we need a cleanup function?
+            self._active_game = None
             self._active_transition = self._active_display = transition
+            self.prompt_text.text = self._next_game.prompt
+            self.control_icon.texture = get_texture(self._next_game.controls)
         else:
             # Show a game after a transition.
             if self.state.is_speedup:
@@ -359,10 +379,16 @@ class PlayView(ArcadeView):
 
     def on_draw(self) -> bool | None:
         self.clear()
-        if self.active_display:
-            self.active_display.draw()
-        if self.active_game and self.state.remaining_time <= COUNTDOWN_TIME:
+        if self._active_display:
+            self._active_display.draw()
+        if self._active_game and self.state.remaining_time <= COUNTDOWN_TIME:
             self.remaining_bar.draw()
+
+        if (self._active_transition and self.state.remaining_time <= CONTROL_START) or (self._active_game and self.state.display_time <= CONTROL_END):
+            draw_sprite(self.control_icon)
+
+        if (self._active_transition and self.state.remaining_time <= PROMPT_START) or (self._active_game and self.state.display_time <= PROMPT_END):
+            self.prompt_text.draw()
 
     def on_key_press(self, symbol: int, modifiers: int) -> bool | None:
         if self.active_game is None:

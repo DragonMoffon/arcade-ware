@@ -12,7 +12,7 @@ from engine.resources import get_sound
 class ShakeEmUp(Game):
     
     def __init__(self, state: PlayState) -> None:
-        super().__init__(state, prompt = "SHAKE!", controls = "move_mouse_click", duration = 4.0, success_duration = None)
+        super().__init__(state, prompt = "SHAKE!", controls = "default.inputs.mouse_move", duration = 4.0, success_duration = None)
         self.box = arcade.SpriteSolidColor(100, 100, self.state.screen_width / 2, self.state.screen_height / 2)
         self.text = arcade.Text("0 SHAKES!", self.state.screen_width / 2, 100, anchor_x='center', anchor_y='center', font_size = 26)
         self.dragging: bool = False
@@ -34,7 +34,8 @@ class ShakeEmUp(Game):
         self.shakes = 0
         self.shake_goal = 30
         self.motion_dir = None
-        self.player = self.sound.play(0.0) # Setting the speed does nothing?
+        self.player = self.sound.play(1.0, speed=self.state.tick_speed) # Setting the speed does nothing?
+        print(self.state.tick_speed)
         self.text.text = "0 SHAKES!"
 
     def finish(self):
@@ -83,7 +84,7 @@ class ShakeEmUp(Game):
 class JuggleTheBall(Game):
     
     def __init__(self, state: PlayState) -> None:
-        super().__init__(state, "JUGGLE!", "move_mouse_click", 8.0)
+        super().__init__(state, "JUGGLE!", "default.inputs.mouse_move", 8.0)
         self.balls: arcade.SpriteList[arcade.Sprite] = arcade.SpriteList()
         self.balls.extend((arcade.SpriteCircle(25, (255, 255, 255, 255), center_x=self.state.screen_width/2, center_y=self.state.screen_height/2) for _ in range(3)))
 

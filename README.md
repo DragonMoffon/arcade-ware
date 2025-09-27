@@ -1,8 +1,13 @@
 # ARCADE WARE
 A simple warioware-esk engine built in python arcade.
 
+### Games To Make
+- Sort Inventory
 
 ### Cool Future Ideas
+- Particle Effects
+- Cheaper Oneshot sounds
+- Resource Pack Carrying and IDs.
 - Selection Controls (i.e. a game/counter that only appears when on your last strike)
 - Ability to control speed levels/max number of strikes
 - Prerequiset Games / Session History. (i.e. Add the mentos, Shake the bottle, fly the bottle rocket)

@@ -11,5 +11,5 @@ def launch():
     window = AWareWindow()
     
     # At the moment just launch straight into the play view with every game and transition.
-    view = PlayView(tuple(get_loaded_games()), tuple(get_loaded_transitions()))
+    view = PlayView(tuple(get_loaded_games()), tuple(get_loaded_transitions()), ())
     window.run(view)

@@ -1,14 +1,14 @@
 from arcade import Sprite, SpriteList, Text, Vec2, Texture, get_window
-from data.loading import load_texture
+from engine.resources import get_texture
 
 
 class Bar:
     def __init__(self, position: Vec2, middle: str, *, back: str | None = None, front: str | None = None):
         self._position = position
-        self.back_tex = load_texture(back) if back is not None else None
-        self.middle_tex = load_texture(middle)
+        self.back_tex = get_texture(back) if back is not None else None
+        self.middle_tex = get_texture(middle)
         self.middle_tex_crop = Texture.create_empty(f'{self.middle_tex.atlas_name}_cropped', self.middle_tex.size)
-        self.front_tex = load_texture(front) if front is not None else None
+        self.front_tex = get_texture(front) if front is not None else None
 
         self.forwards = True
 
@@ -83,5 +83,5 @@ class Bar:
 
 class TimeBar(Bar):
     def __init__(self, position: Vec2):
-        super().__init__(position, "middle_bar", front = "top_bar", back = "back_bar")
+        super().__init__(position, "default.middle_bar", front = "default.top_bar", back = "default.back_bar")
         self.forwards = True
