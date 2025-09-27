@@ -1,7 +1,7 @@
 from pathlib import Path
 from importlib import import_module
 
-from engine.play import Game, Transition
+from engine.play import Game, Transition, Fail
 
 __all__ = (
     "load_packs",
@@ -19,3 +19,6 @@ def get_loaded_games():
 
 def get_loaded_transitions():
     return Transition.__subclasses__()
+
+def get_loaded_fails():
+    return Fail.__subclasses__()

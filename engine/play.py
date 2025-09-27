@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Self
-from random import shuffle
+from random import shuffle, choice
 
 from arcade import Vec2, Text, Sprite, View as ArcadeView, draw_sprite
 from arcade.clock import Clock
@@ -9,7 +9,7 @@ from engine.resources import get_texture
 
 from aware.bar import TimeBar
 
-MAX_STRIKE_COUNT = 4
+MAX_STRIKE_COUNT = 1
 SPEED_INCREASE_GAME_COUNT = 5
 SPEED_INCREASE_STEP_SIZE = 0.1
 COUNTDOWN_TIME = 3
@@ -23,6 +23,12 @@ class Display:
     def __init__(self, state: PlayState, duration: float) -> None:
         self.state: PlayState = state
         self._duration: float = duration
+
+    def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
+        pass
+
+    def on_input(self, symbol: int, modifier: int, pressed: bool):
+        pass
 
     @property
     def duration(self):
@@ -68,15 +74,17 @@ class Game(Display):
     def on_time_runout(self):
         self.fail()
 
-    def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
-        pass
-
-    def on_input(self, symbol: int, modifier: int, pressed: bool):
-        pass
-
 # TODO
 class Fail(Display):
-    pass
+    
+    def __init__(self, state: PlayState) -> None:
+        super().__init__(state, float('inf'))
+
+    def restart(self):
+        self.state.reset_play()
+
+    def quit(self):
+        self.state.quit_play()
 
 class PlayState:
     
@@ -139,6 +147,12 @@ class PlayState:
     def set_game_succeeded(self, succeeded: bool):
         # Finish the current game and say wether it is done.
         self._source.game_succeeded(succeeded)
+
+    def reset_play(self):
+        self._source.restart()
+
+    def quit_play(self):
+        self._source.quit()
 
     @property
     def success_duration(self) -> float | None:
@@ -223,6 +237,7 @@ class PlayView(ArcadeView):
         # The clock that gets faster and faster.
         self.play_clock: Clock = Clock(0.0, 0, 1.0)
 
+        # TODO: remove success duration yippeee
         # The last game's success duration. If this is None then the transition shows
         # the success/fail. However if it is > 0.0 then the game view does.
         self.success_duration: float | None = None
@@ -233,7 +248,7 @@ class PlayView(ArcadeView):
         # The list of possible games/counters to pick from
         self._games: tuple[Game, ...] = tuple(game.create(self.state) for game in games)
         self._transitions: tuple[Transition, ...] = tuple(transition.create(self.state) for transition in transitions)
-        self._fail: tuple[Fail, ...] = tuple(fail.create(self.state) for fail in fails)
+        self._fails: tuple[Fail, ...] = tuple(fail.create(self.state) for fail in fails)
 
         # Whether or not to use bags to pick which game/transition to use.
         self._pick_games_bagged: bool = True
@@ -278,8 +293,12 @@ class PlayView(ArcadeView):
 
         if self._active_display is not None:
             self._active_display.finish()
-    
-        if self._active_transition is None or self._active_display is None:
+        self._active_display
+
+        if self.play_over:
+            self._active_game = self._active_transition = None
+            self._active_display = self.pick_fail()
+        elif self._active_transition is None and self._active_transition is None:
             # show transition as either the first display, or after a game.
             transition = self.pick_transition()
             self._active_game = None
@@ -319,12 +338,65 @@ class PlayView(ArcadeView):
         if not self._game_bag:
             self._game_bag = list(self._games)
         return game
+    
+    def pick_fail(self) -> Fail:
+        return choice(self._fails)
 
     def game_succeeded(self, succeeded: bool):
         if not self._active_game:
             return
         
         self.active_game_succeeded = succeeded
+
+    def restart(self):
+        # Store the cursor position incase either the Game or Transition want to use it.
+        self._cursor_position: tuple[float, float] = (0.0, 0.0)
+
+        self.count = 0  # number of games played
+        self.speed = 0  # speedups
+        self.tick_speed = 1.0 # Actual speed scalar
+        self.strikes = 0  # number of games failed
+
+        # The play is over so let's show the FailDisplay
+        self.play_over: bool = False
+
+        if self._active_display is not None:
+            self._active_display.finish()
+
+        # The active display is the type indifferent version of active game and counter
+        # do we need both? maybe not, but keeping them seperate gives us more control.
+        self._active_display: Display | None = None
+        self._active_game: Game | None = None
+        self._next_game: Game | None = None
+        self._active_transition: Transition | None = None
+        
+        # If the active game has succeeded or not. If it's none then the game isn't
+        # over. Otherwise it tells us how the game is over.
+        self.active_game_succeeded: bool | None = None
+        
+        # Time the current display got shown.
+        self.display_time: float = 0.0
+        # The clock that gets faster and faster.
+        self.play_clock: Clock = Clock(0.0, 0, 1.0)
+
+        # The last game's success duration. If this is None then the transition shows
+        # the success/fail. However if it is > 0.0 then the game view does.
+        self.success_duration: float | None = 1.0
+
+        # Whether or not to use bags to pick which game/transition to use.
+        self._pick_games_bagged: bool = True
+        self._game_bag: list[Game] = list(self._games)
+        self._pick_transitions_bagged: bool = False
+        self._transition_bag: list[Transition] = list(self._transitions)
+
+        self.next_displayable()
+
+    def quit(self):
+        self.window.close()
+
+    def play_failed(self):
+        self.play_over = True
+        self.next_displayable()
 
     def speedup_game(self):
         self.speed += 1
@@ -356,11 +428,11 @@ class PlayView(ArcadeView):
         if self.active_game_succeeded is not None and not overtime:
             if not self.active_game_succeeded:
                 self.strikes += 1
+            self.count += 1
             if self.strikes >= MAX_STRIKE_COUNT:
                 # The play session is finished.
-                raise ValueError('YOU FAILEDDDD!!!!!! todo a real end to the game.')
+                self.play_failed()
                 return
-            self.count += 1
             self.next_displayable()
             # the game is finsihed
             return
@@ -391,29 +463,29 @@ class PlayView(ArcadeView):
             self.prompt_text.draw()
 
     def on_key_press(self, symbol: int, modifiers: int) -> bool | None:
-        if self.active_game is None:
+        if self._active_display is None:
             return
-        self.active_game.on_input(symbol, modifiers, True)
+        self._active_display.on_input(symbol, modifiers, True)
 
     def on_key_release(self, symbol: int, modifiers: int) -> bool | None:
-        if self.active_game is None:
+        if self._active_display is None:
             return
-        self.active_game.on_input(symbol, modifiers, False)
+        self._active_display.on_input(symbol, modifiers, False)
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> bool | None:
         self._cursor_position = (x, y)
-        if self.active_game is None:
+        if self._active_display is None:
             return
-        self.active_game.on_input(button, modifiers, True)
+        self._active_display.on_input(button, modifiers, True)
     
     def on_mouse_release(self, x: int, y: int, button: int, modifiers: int) -> bool | None:
         self._cursor_position = (x, y)
-        if self.active_game is None:
+        if self._active_display is None:
             return
-        self.active_game.on_input(button, modifiers, False)
+        self._active_display.on_input(button, modifiers, False)
 
     def on_mouse_motion(self, x: int, y: int, dx: int, dy: int) -> bool | None:
         self._cursor_position = (x, y)
-        if self.active_game is None:
+        if self._active_display is None:
             return
-        self.active_game.on_cursor_motion(x, y, dx, dy)
+        self._active_display.on_cursor_motion(x, y, dx, dy)

@@ -1,5 +1,5 @@
 from aware.window import AWareWindow
-from aware.finder import load_packs, get_loaded_games, get_loaded_transitions
+from aware.finder import load_packs, get_loaded_games, get_loaded_transitions, get_loaded_fails
 from engine.play import PlayView
 from engine.resources import load_resources
 
@@ -11,5 +11,5 @@ def launch():
     window = AWareWindow()
     
     # At the moment just launch straight into the play view with every game and transition.
-    view = PlayView(tuple(get_loaded_games()), tuple(get_loaded_transitions()), ())
+    view = PlayView(tuple(get_loaded_games()), tuple(get_loaded_transitions()), tuple(get_loaded_fails()))
     window.run(view)
