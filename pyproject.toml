@@ -17,3 +17,14 @@ dependencies = [
     "platformdirs",
     "digiformatter==0.5.7.2",
 ]
+
+[tool.pyright]
+reportUnnecessaryComparison = "warning"
+
+[tool.ruff]
+exclude = [
+    ".ruff_cache",
+    ".libs",
+    ".vscode",
+    "__pypackages__",
+]
