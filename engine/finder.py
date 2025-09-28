@@ -27,10 +27,10 @@ def load_packs():
     for module in appdata_modules:
         _load_pack(module)
 
-class _PackImport(Protocol):
+class _PackModule(Protocol):
     def setup(self) -> Pack | Iterable[Pack] | Generator[Pack, None, None]: ...
 
-def _import_packs(pth: Path) -> Generator[_PackImport, None, None]:
+def _import_packs(pth: Path) -> Generator[_PackModule, None, None]:
     for pack in pth.iterdir():
         # TODO: support packs that are zips
         if not pack.is_dir():
@@ -49,13 +49,21 @@ def _import_pack_dir(name: str, pth: Path) -> ModuleType:
     spec.loader.exec_module(module) # type: ignore -- The loader should be real at this point
     return module
 
-def _load_pack(pack: _PackImport):
+def _load_pack(pack_module: _PackModule):
     try:
-        pack_def = pack.setup()
+        pack_def = pack_module.setup()
     except Exception as e:
         print(e)
         pack_def = ()
-    print(pack_def)
+
+    if pack_def is None:
+        pack_def = ()
+
+    if isinstance(pack_def, Pack):
+        pack_def = (pack_def,)
+
+    for pack in pack_def:
+        print(pack)
 
 def get_loaded_games():
     return Game.__subclasses__()
