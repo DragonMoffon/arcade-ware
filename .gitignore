@@ -49,3 +49,7 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# Let's not source-leak charm rn
+packs/charm/
+resources/charm/
