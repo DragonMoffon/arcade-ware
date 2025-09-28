@@ -1,8 +1,10 @@
-from arcade import draw_text
-
 from engine.play import Fail
 
-class DefaultFail(Fail):
+import arcade
+
+from arcade import draw_text
+
+class TemplateFail(Fail):
     def draw(self):
         draw_text(
             'YOU FAILED: click to restart',

@@ -52,7 +52,9 @@ class Display:
         pass
 
 class Transition(Display):
-    pass
+    @classmethod
+    def create(cls, state: PlayState) -> Self:
+        return cls(state)  # type: ignore -- signature thing
 
 class Game(Display):
     def __init__(self, state: PlayState, prompt: str, controls: str, duration: float, success_duration: float | None = None) -> None:
@@ -84,9 +86,12 @@ class Game(Display):
 
 # TODO
 class Fail(Display):
-    
     def __init__(self, state: PlayState) -> None:
         super().__init__(state, float('inf'))
+
+    @classmethod
+    def create(cls, state: PlayState) -> Self:
+        return cls(state)
 
     def restart(self):
         self.state.reset_play()

@@ -4,7 +4,8 @@ import arcade
 
 from engine.play import PlayState, Transition
     
-class DefaultTransition(Transition):
+class TemplateTransition(Transition):
+
     def __init__(self, state: PlayState) -> None:
         super().__init__(state, 3)
         self.text = arcade.Text("", self.state.screen_width/2.0, self.state.screen_height/2.0, anchor_x="center", anchor_y="center")

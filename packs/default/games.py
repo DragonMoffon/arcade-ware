@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from random import random
 from math import copysign
-from typing import Self
 
 import arcade
 
