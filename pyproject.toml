@@ -1,5 +1,5 @@
 [project]
-name = "ardade-ware"
+name = "arcade-ware"
 version = "0"
 description = "A simple warioware-esk engine built in python arcade"
 readme = "README.md"
