@@ -5,15 +5,16 @@ import arcade
 from aware.anim import bounce
 from engine.play import PlayState, Game
 from engine.resources import get_sound, get_sprite
-from packs.digi import noa
+
+from .lib import noa
 
 class DoNothingGame(Game):
     def __init__(self, state: PlayState) -> None:
         super().__init__(state, prompt = "DO NOTHING!", controls = "default.inputs.nothing", duration = 6.0)
         self.sprites = [
-            get_sprite("digi.donothing.3", self.window.center_x, self.window.center_y, color = arcade.color.BLACK),
-            get_sprite("digi.donothing.2", self.window.center_x, self.window.center_y, color = arcade.color.BLACK),
-            get_sprite("digi.donothing.1", self.window.center_x, self.window.center_y, color = arcade.color.BLACK),
+            get_sprite("digi.donothing.3", self.window.center_x, self.window.center_y),
+            get_sprite("digi.donothing.2", self.window.center_x, self.window.center_y),
+            get_sprite("digi.donothing.1", self.window.center_x, self.window.center_y),
             get_sprite("digi.donothing.stop", self.window.center_x, self.window.center_y)
         ]
 
@@ -27,6 +28,10 @@ class DoNothingGame(Game):
     def current_sprite(self) -> arcade.Sprite:
         return self.sprites[min(3, int(self.state.display_time))]
     
+    @property
+    def current_hue(self) -> int:
+        return int(self.state.display_time * 4) % 12
+    
     def start(self):
         self.party_player = self.party_noise.play(speed = self.state.tick_speed)
         self.stop_player = self.stop_noise.play()
@@ -38,12 +43,13 @@ class DoNothingGame(Game):
 
     def draw(self):
         if self.state.display_time < 3:
-            arcade.draw_rect_filled(self.window.rect, noa.get_color(int(self.state.display_time * 4) % 12, 8, 8))
+            arcade.draw_rect_filled(self.window.rect, noa.get_color(self.current_hue, 8, 8))
         arcade.draw_sprite(self.current_sprite)
 
     def update(self, delta_time: float):
         if self.state.display_time < 3:
             self.current_sprite.center_y = bounce(self.window.center_y, self.window.center_y + 50, 60, self.state.display_time)
+            self.current_sprite.color = noa.get_color((self.current_hue + 6) % 12, 4, 8)
         else:
             self.party_player.pause()
             self.stop_player.play()

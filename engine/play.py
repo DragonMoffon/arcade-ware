@@ -251,8 +251,8 @@ class PlayView(ArcadeView):
 
         self.remaining_bar = TimeBar(Vec2(0, 0))
         self.remaining_bar.position = Vec2(self.width, self.remaining_bar.back_sprite.height)
-        self.prompt_text = Text('PROMPT!', self.center_x, self.center_y+30, anchor_x="center", anchor_y="center")
-        self.control_icon = Sprite(None, center_x=self.center_x, center_y=self.center_y+60)
+        self.control_icon = Sprite(None, center_x=self.center_x, center_y=self.center_y+60, scale = 3)
+        self.prompt_text = Text('PROMPT!', self.center_x, self.control_icon.bottom + 100, anchor_x = "center", anchor_y = "top", font_size = 48, font_name = "GohuFont 11 Nerd Font Mono")
 
     @property
     def cursor_position(self):
@@ -440,7 +440,7 @@ class PlayView(ArcadeView):
             self.remaining_bar.draw()
 
         if (self._active_transition and self.state.remaining_time <= CONTROL_START) or (self._active_game and self.state.display_time <= CONTROL_END):
-            draw_sprite(self.control_icon)
+            draw_sprite(self.control_icon, pixelated = True)
 
         if (self._active_transition and self.state.remaining_time <= PROMPT_START) or (self._active_game and self.state.display_time <= PROMPT_END):
             self.prompt_text.draw()
