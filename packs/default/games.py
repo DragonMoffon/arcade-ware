@@ -82,14 +82,22 @@ class JuggleTheBall(Game):
     def __init__(self, state: PlayState) -> None:
         super().__init__(state, "JUGGLE!", "default.inputs.mouse", 8.0)
         self.balls: arcade.SpriteList[arcade.Sprite] = arcade.SpriteList()
+        self._last_active_ball: arcade.Sprite | None = None
+        self._closest_ball: arcade.Sprite | None = None
         self.balls.extend((arcade.SpriteCircle(25, (255, 255, 255, 255), center_x=self.state.screen_width/2, center_y=self.state.screen_height/2) for _ in range(3)))
         self.clicks = 0
 
         self.clicks_remaining_text = arcade.Text(f"{self.REQUIRED_CLICKS}", self.window.center_x, self.window.center_y, color = arcade.color.WHITE.replace(a = 64), font_size = 100, align = "center", anchor_x = "center", anchor_y = "center")
 
     def start(self):
+        if self._last_active_ball is not None:
+            self._last_active_ball.color = (255, 255, 255)
+        if self._closest_ball is not None:
+            self._closest_ball.color = (255, 255, 255)
+        self._last_active_ball = self._closest_ball = None
+
         for ball in self.balls:
-            ball.position = self.state.screen_width * random(), 0.6666 * self.state.screen_height
+            ball.position = self.state.screen_width * (random() * 0.6 + 0.2), 0.6666 * self.state.screen_height
             ball.change_x = (random() * 2.0 - 1.0) * 400
             # Will always be positive but that's fine
             ball.change_y = (400**2 - ball.change_x**2)**0.5
@@ -120,20 +128,45 @@ class JuggleTheBall(Game):
 
     def on_input(self, symbol: int, modifier: int, pressed: bool):
         if symbol == arcade.MOUSE_BUTTON_LEFT and pressed:
-            cursor = self.state.cursor_position
-            closest_ball = None
-            dist = float('inf')
-            for ball in self.balls:
-                diff = (ball.center_x - cursor[0])**2 + (ball.center_y - cursor[1])
-                if diff < dist:
-                    closest_ball = ball
-                    dist = diff
-            if closest_ball is None:
+            if self._closest_ball is None:
                 return
-            if dist < 30**2:
-                closest_ball.change_y = 360
-                self.clicks += 1
-                self.clicks_remaining_text.text = str(self.REQUIRED_CLICKS - self.clicks)
+            self._closest_ball.change_y = 360
+            self._closest_ball.change_x = copysign(self._closest_ball.change_x, self.state.screen_width/2 - self._closest_ball.center_x)
+            self._closest_ball.color = (125, 125, 125)
+            self.clicks += 1
+            self.clicks_remaining_text.text = str(self.REQUIRED_CLICKS - self.clicks)
+
+
+            if self._last_active_ball is not None:
+                self._last_active_ball.color = (255, 255, 255)
+            self._last_active_ball = self._closest_ball
+            self._closest_ball = None
+
+
+    def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
+        closest_ball = self.get_closest_ball_to_pos((x, y))
+        if self._closest_ball is not None:
+            self._closest_ball.color = (255, 255, 255)
+        self._closest_ball = closest_ball
+
+        if closest_ball is not None:
+            closest_ball.color = (255, 230, 210)
+
+    def get_closest_ball_to_pos(self, point: tuple[float, float], range: float = 50, exclude_last: bool = True):
+        closest_ball = None
+        dist = float('inf')
+        for ball in self.balls:
+            if ball is self._last_active_ball and exclude_last:
+                continue
+            diff = (ball.center_x - point[0])**2 + (ball.center_y - point[1])**2
+            if diff < dist:
+                closest_ball = ball
+                dist = diff
+        if closest_ball is None:
+            return
+        if dist < range**2:
+            return closest_ball
+        
 
     def draw(self):
         self.clicks_remaining_text.draw()

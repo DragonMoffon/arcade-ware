@@ -10,7 +10,7 @@ from engine.resources import get_texture
 
 from aware.bar import TimeBar
 
-MAX_STRIKE_COUNT = 1
+MAX_STRIKE_COUNT = 4
 SPEED_INCREASE_GAME_COUNT = 5
 SPEED_INCREASE_STEP_SIZE = 0.1
 COUNTDOWN_TIME = 3
