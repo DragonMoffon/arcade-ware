@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from arcade import Sprite, load_sound, load_texture, load_spritesheet, Sound, Texture, SpriteSheet
+import arcade
 
 __all__ = (
     "load_resources",
@@ -59,10 +60,12 @@ def get_texture(target: str) -> Texture:
     pth = TEXTURE_MAP[target]
     return load_texture(pth)
 
-def get_sprite(target: str, center_x: float = 0, center_y: float = 0) -> Sprite:
+def get_sprite(target: str, center_x: float = 0, center_y: float = 0, color = arcade.color.WHITE) -> Sprite:
     pth = TEXTURE_MAP[target]
     tex = load_texture(pth)
-    return Sprite(tex, center_x = center_x, center_y = center_y)
+    spr = Sprite(tex, center_x = center_x, center_y = center_y)
+    spr.color = color
+    return spr
 
 def get_spritesheet(target: str) -> SpriteSheet:
     pth = TEXTURE_MAP[target]
