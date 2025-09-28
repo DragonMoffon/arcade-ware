@@ -11,7 +11,7 @@ from engine.resources import get_sound
 class ShakeEmUp(Game):
     
     def __init__(self, state: PlayState) -> None:
-        super().__init__(state, prompt = "SHAKE!", controls = "default.inputs.mouse_move", duration = 4.0, success_duration = None)
+        super().__init__(state, prompt = "SHAKE!", controls = "default.inputs.mouse_move", duration = 4.0)
         self.box = arcade.SpriteSolidColor(100, 100, self.state.screen_width / 2, self.state.screen_height / 2)
         self.text = arcade.Text("0 SHAKES!", self.state.screen_width / 2, 100, anchor_x='center', anchor_y='center', font_size = 26)
         self.dragging: bool = False
@@ -29,8 +29,8 @@ class ShakeEmUp(Game):
         self.shakes = 0
         self.shake_goal = 30
         self.motion_dir = None
-        self.player = self.sound.play(1.0, speed=self.state.tick_speed) # Setting the speed does nothing?
-        print(self.state.tick_speed)
+        self.sound.source.
+        self.player = self.sound.play(1.0, speed=self.state.tick_speed)
         self.text.text = "0 SHAKES!"
 
     def finish(self):
@@ -77,10 +77,10 @@ class ShakeEmUp(Game):
 
 
 class JuggleTheBall(Game):
-    REQUIRED_CLICKS = 10
+    REQUIRED_CLICKS = 5
     
     def __init__(self, state: PlayState) -> None:
-        super().__init__(state, "JUGGLE!", "default.inputs.mouse", 8.0)
+        super().__init__(state, "JUGGLE!", "default.inputs.mouse", 5.0)
         self.balls: arcade.SpriteList[arcade.Sprite] = arcade.SpriteList()
         self._last_active_ball: arcade.Sprite | None = None
         self._closest_ball: arcade.Sprite | None = None
@@ -97,10 +97,10 @@ class JuggleTheBall(Game):
         self._last_active_ball = self._closest_ball = None
 
         for ball in self.balls:
-            ball.position = self.state.screen_width * (random() * 0.6 + 0.2), 0.6666 * self.state.screen_height
-            ball.change_x = (random() * 2.0 - 1.0) * 400
+            ball.position = self.state.screen_width * random(), 0.5 * self.state.screen_height
+            ball.change_x = copysign(200, self.state.screen_width/2 - ball.center_x)
             # Will always be positive but that's fine
-            ball.change_y = (400**2 - ball.change_x**2)**0.5
+            ball.change_y = 360
         self.clicks = 0
         self.clicks_remaining_text.text = str(self.REQUIRED_CLICKS)
 
@@ -136,12 +136,10 @@ class JuggleTheBall(Game):
             self.clicks += 1
             self.clicks_remaining_text.text = str(self.REQUIRED_CLICKS - self.clicks)
 
-
             if self._last_active_ball is not None:
                 self._last_active_ball.color = (255, 255, 255)
             self._last_active_ball = self._closest_ball
             self._closest_ball = None
-
 
     def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
         closest_ball = self.get_closest_ball_to_pos((x, y))

@@ -57,16 +57,11 @@ class Transition(Display):
         return cls(state)  # type: ignore -- signature thing
 
 class Game(Display):
-    def __init__(self, state: PlayState, prompt: str, controls: str, duration: float, success_duration: float | None = None) -> None:
+    def __init__(self, state: PlayState, prompt: str, controls: str, duration: float) -> None:
         super().__init__(state, duration)
         # The text prompt for the transition to show, and the id of the control image to show.
         self.prompt: str = prompt
         self.controls: str = controls
-
-        # How long after the game has finished does the play view hold on.
-        # This is to let the game display a success/fail animation.
-        # If None the play view instead tells the trasition to show a success/failure.
-        self.success_duration: float | None = success_duration
 
         # Store the window for fun and profit
         self.window = arcade.get_window()
@@ -166,16 +161,6 @@ class PlayState:
 
     def quit_play(self):
         self._source.quit()
-
-    @property
-    def success_duration(self) -> float | None:
-        # How long should the game be lingered on to show the success screen
-        return self._source.success_duration
-    
-    @property
-    def show_transition_success(self) -> bool:
-        # Should the transition show that the game was a success?
-        return not self._source.success_duration
     
     @property
     def is_speedup(self) -> bool:
@@ -250,11 +235,6 @@ class PlayView(ArcadeView):
         # The clock that gets faster and faster.
         self.play_clock: Clock = Clock(0.0, 0, 1.0)
 
-        # TODO: remove success duration yippeee
-        # The last game's success duration. If this is None then the transition shows
-        # the success/fail. However if it is > 0.0 then the game view does.
-        self.success_duration: float | None = None
-
         # A read only view of the PlayView.
         self.state: PlayState = PlayState(self)
 
@@ -295,8 +275,6 @@ class PlayView(ArcadeView):
         return self._active_game
 
     def on_show_view(self) -> None:
-        # TODO: fix this cludge. To skip the first success screen we act as though the 'previous game' shows the success/fail.
-        self.success_duration = 1.0 
         self.next_displayable()
 
     def next_displayable(self):
@@ -327,7 +305,6 @@ class PlayView(ArcadeView):
                 self.speedup_game()
             self._active_transition = self.active_game_succeeded = None
             self._active_game = self._active_display = self._next_game
-            self.success_duration = self._active_game.success_duration
             self._next_game = self.pick_game()
             # setup the next display.
         self.display_time = self.play_clock.time
@@ -393,10 +370,6 @@ class PlayView(ArcadeView):
         # The clock that gets faster and faster.
         self.play_clock: Clock = Clock(0.0, 0, 1.0)
 
-        # The last game's success duration. If this is None then the transition shows
-        # the success/fail. However if it is > 0.0 then the game view does.
-        self.success_duration: float | None = 1.0
-
         # Whether or not to use bags to pick which game/transition to use.
         self._pick_games_bagged: bool = True
         self._game_bag: list[Game] = list(self._games)
@@ -435,11 +408,7 @@ class PlayView(ArcadeView):
         if self.state.display_time >= self._active_game.duration:
             self._active_game.on_time_runout()
 
-        overtime = False
-        if self._active_game.success_duration:
-            overtime = self.state.display_time - self._active_game.duration < self._active_game.success_duration
-
-        if self.active_game_succeeded is not None and not overtime:
+        if self.active_game_succeeded is not None:
             if not self.active_game_succeeded:
                 self.strikes += 1
             self.count += 1

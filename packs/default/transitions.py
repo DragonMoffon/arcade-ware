@@ -10,7 +10,7 @@ class DefaultTransition(Transition):
         self.text = arcade.Text("", self.state.screen_width/2.0, self.state.screen_height/2.0, anchor_x="center", anchor_y="center")
     
     def draw(self):
-        if self.state.show_transition_success and self.state.display_time <= 1.0:
+        if self.state.display_time <= 1.0:
             text = "WELLDONE" if self.state.has_game_succeeded else "YOU FAILED"
         elif self.state.is_speedup and self.state.display_time >= 2.0:
             text = "SPEEDUP!!!"
