@@ -1,5 +1,5 @@
 from aware.window import AWareWindow
-from aware.finder import load_packs, get_loaded_games, get_loaded_transitions, get_loaded_fails
+from engine.finder import load_packs, get_loaded_games, get_loaded_transitions, get_loaded_fails
 from engine.play import PlayView
 from engine.resources import load_resources
 
