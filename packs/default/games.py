@@ -29,8 +29,7 @@ class ShakeEmUp(Game):
         self.shakes = 0
         self.shake_goal = 30
         self.motion_dir = None
-        self.sound.source.
-        self.player = self.sound.play(1.0, speed=self.state.tick_speed)
+        self.player = self.sound.play(0.0, speed=self.state.tick_speed)
         self.text.text = "0 SHAKES!"
 
     def finish(self):

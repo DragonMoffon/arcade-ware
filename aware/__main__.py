@@ -1,5 +1,5 @@
 import pyglet
-pyglet.options.audio = ['directsound']
+pyglet.options.audio = ['directsound', 'xaudio2', "openal", "pulse", "silent"]
 
 from aware.launch import launch
 
