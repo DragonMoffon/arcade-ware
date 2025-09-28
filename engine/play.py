@@ -69,6 +69,10 @@ class Game(Display):
         # Store the window for fun and profit
         self.window = arcade.get_window()
 
+    @classmethod
+    def create(cls, state: PlayState) -> Self:
+        return cls(state) # type: ignore -- This is going to be mad at us because Game subclasses have a different constructor
+
     def succeed(self):
         self.state.set_game_succeeded(True)
 

@@ -22,10 +22,6 @@ class ShakeEmUp(Game):
         self.motion_dir: tuple[float, float] | None = None
         self.sound = get_sound('default.growth')
         self.player = None
-
-    @classmethod
-    def create(cls, state: PlayState) -> ShakeEmUp:
-        return ShakeEmUp(state)
     
     def start(self):
         self.box.position = self.state.screen_width / 2, self.state.screen_height / 2
@@ -91,10 +87,6 @@ class JuggleTheBall(Game):
         self.clicks = 0
 
         self.clicks_remaining_text = arcade.Text(f"{self.REQUIRED_CLICKS}", self.window.center_x, self.window.center_y, color = arcade.color.WHITE.replace(a = 64), font_size = 100, align = "center", anchor_x = "center", anchor_y = "center")
-
-    @classmethod
-    def create(cls, state: PlayState) -> Self:
-        return cls(state)
 
     def start(self):
         for ball in self.balls:
