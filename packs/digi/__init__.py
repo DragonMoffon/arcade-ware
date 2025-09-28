@@ -1,14 +1,14 @@
-from .games import DigiGame
+from .games import DoNothingGame
 
 from engine.pack import Pack
 
 __all__ = [
-    "DigiGame"
+    "DoNothingGame"
 ]
 
 def setup():
     return Pack(
-        games=(DigiGame, ),
+        games=(DoNothingGame, ),
         transitions=(),
         fails=()
     )
