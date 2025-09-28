@@ -1,4 +1,5 @@
 from arcade import Sprite, SpriteList, Text, Vec2, Texture, get_window
+from aware.utils import clamp
 from engine.resources import get_texture
 
 
@@ -50,6 +51,7 @@ class Bar:
 
     @percentage.setter
     def percentage(self, v: float) -> None:
+        v = clamp(0, v, 1)
         self._percentage = v
         self.debug_text.text = f"{self.percentage*100:.2f}%"
 
