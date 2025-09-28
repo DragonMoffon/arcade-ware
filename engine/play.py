@@ -3,6 +3,7 @@ from typing import Self
 from random import shuffle, choice
 
 from arcade import Vec2, Text, Sprite, View as ArcadeView, draw_sprite
+import arcade
 from arcade.clock import Clock
 
 from engine.resources import get_texture
@@ -64,6 +65,9 @@ class Game(Display):
         # This is to let the game display a success/fail animation.
         # If None the play view instead tells the trasition to show a success/failure.
         self.success_duration: float | None = success_duration
+
+        # Store the window for fun and profit
+        self.window = arcade.get_window()
 
     def succeed(self):
         self.state.set_game_succeeded(True)
@@ -256,7 +260,8 @@ class PlayView(ArcadeView):
         self._pick_transitions_bagged: bool = False
         self._transition_bag: list[Transition] = list(self._transitions)
 
-        self.remaining_bar = TimeBar(Vec2(self.width, 68))
+        self.remaining_bar = TimeBar(Vec2(0, 0))
+        self.remaining_bar.position = Vec2(self.width, self.remaining_bar.back_sprite.height)
         self.prompt_text = Text('PROMPT!', self.center_x, self.center_y+30, anchor_x="center", anchor_y="center")
         self.control_icon = Sprite(None, center_x=self.center_x, center_y=self.center_y+60)
 

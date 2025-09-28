@@ -82,11 +82,15 @@ class ShakeEmUp(Game):
 
 
 class JuggleTheBall(Game):
+    REQUIRED_CLICKS = 10
     
     def __init__(self, state: PlayState) -> None:
-        super().__init__(state, "JUGGLE!", "default.inputs.mouse_move", 8.0)
+        super().__init__(state, "JUGGLE!", "default.inputs.mouse", 8.0)
         self.balls: arcade.SpriteList[arcade.Sprite] = arcade.SpriteList()
         self.balls.extend((arcade.SpriteCircle(25, (255, 255, 255, 255), center_x=self.state.screen_width/2, center_y=self.state.screen_height/2) for _ in range(3)))
+        self.clicks = 0
+
+        self.clicks_remaining_text = arcade.Text(f"{self.REQUIRED_CLICKS}", self.window.center_x, self.window.center_y, color = arcade.color.WHITE.replace(a = 64), font_size = 100, align = "center", anchor_x = "center", anchor_y = "center")
 
     @classmethod
     def create(cls, state: PlayState) -> Self:
@@ -98,6 +102,8 @@ class JuggleTheBall(Game):
             ball.change_x = (random() * 2.0 - 1.0) * 400
             # Will always be positive but that's fine
             ball.change_y = (400**2 - ball.change_x**2)**0.5
+        self.clicks = 0
+        self.clicks_remaining_text.text = str(self.REQUIRED_CLICKS)
 
     def on_time_runout(self):
         self.succeed()
@@ -117,9 +123,12 @@ class JuggleTheBall(Game):
             if ball.center_y < 25:
                 self.fail()
                 return
+            
+        if self.clicks >= self.REQUIRED_CLICKS:
+            self.succeed()
 
     def on_input(self, symbol: int, modifier: int, pressed: bool):
-        if symbol == arcade.MOUSE_BUTTON_LEFT:
+        if symbol == arcade.MOUSE_BUTTON_LEFT and pressed:
             cursor = self.state.cursor_position
             closest_ball = None
             dist = float('inf')
@@ -132,6 +141,9 @@ class JuggleTheBall(Game):
                 return
             if dist < 30**2:
                 closest_ball.change_y = 360
+                self.clicks += 1
+                self.clicks_remaining_text.text = str(self.REQUIRED_CLICKS - self.clicks)
+
     def draw(self):
+        self.clicks_remaining_text.draw()
         self.balls.draw()
-        
