@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from pathlib import Path
+from dataclasses import dataclass, field
 from engine.play import Game, Transition, Fail
 
 
@@ -15,3 +16,8 @@ class Pack:
     external_transitions: str | tuple[str, ...] = ()
     external_fails: str | tuple[str, ...] = ()
     requires_external: bool = False
+
+    # -- Metadata attributes not set by the user --
+    # origin: Path = field(init=False)
+    # time: float = field(init=False)
+
