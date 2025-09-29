@@ -64,3 +64,29 @@ class DoNothingGame(Game):
     def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
         if self.state.display_time > 3:
             self.fail()
+
+class EmulateStallGame(Game):
+    def __init__(self, state: PlayState) -> None:
+        super().__init__(state, prompt = "STALL!", controls = "default.inputs.nothing", duration = 120.0)
+        ...
+    
+    def start(self):
+        ...
+
+    def finish(self):
+        ...
+
+    def draw(self):
+        ...
+
+    def update(self, delta_time: float):
+        ...
+
+    def on_time_runout(self):
+        self.succeed()
+
+    def on_input(self, symbol: int, modifier: int, pressed: bool):
+        ...
+
+    def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
+        ...

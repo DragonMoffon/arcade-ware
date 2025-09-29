@@ -18,12 +18,16 @@ PROMPT_START = 1.0
 PROMPT_END = 0.5
 CONTROL_START = 1.0
 CONTROL_END = 0.5
+STALL_TIME = 60
 
 class Display:
     # TODO: seperate the game state from the game view
     def __init__(self, state: PlayState, duration: float) -> None:
         self.state: PlayState = state
         self._duration: float = duration
+
+        # Store the window for fun and profit
+        self.window = arcade.get_window()
 
     def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
         pass
@@ -62,9 +66,6 @@ class Game(Display):
         # The text prompt for the transition to show, and the id of the control image to show.
         self.prompt: str = prompt
         self.controls: str = controls
-
-        # Store the window for fun and profit
-        self.window = arcade.get_window()
 
     @classmethod
     def create(cls, state: PlayState) -> Self:
@@ -253,6 +254,8 @@ class PlayView(ArcadeView):
         self.remaining_bar.position = Vec2(self.width, self.remaining_bar.back_sprite.height)
         self.control_icon = Sprite(None, center_x=self.center_x, center_y=self.center_y+60, scale = 3)
         self.prompt_text = Text('PROMPT!', self.center_x, self.control_icon.bottom + 100, anchor_x = "center", anchor_y = "top", font_size = 48, font_name = "GohuFont 11 Nerd Font Mono")
+
+        self.stall_text = Text("We think the game might have stalled... press [END] to skip!", 5, 5, anchor_x = "left", anchor_y = "bottom", font_size = 11, font_name = "GohuFont 11 Nerd Font Mono")
 
     @property
     def cursor_position(self):
@@ -445,6 +448,9 @@ class PlayView(ArcadeView):
         if (self._active_transition and self.state.remaining_time <= PROMPT_START) or (self._active_game and self.state.display_time <= PROMPT_END):
             self.prompt_text.draw()
 
+        if self._active_display and self._active_display.state.display_time > STALL_TIME:
+            self.stall_text.draw()
+
     def on_key_press(self, symbol: int, modifiers: int) -> bool | None:
         if self._active_display is None:
             return
@@ -454,6 +460,8 @@ class PlayView(ArcadeView):
         if self._active_display is None:
             return
         self._active_display.on_input(symbol, modifiers, False)
+        if self._active_display.state.display_time > STALL_TIME and symbol == arcade.key.END:
+            self.next_displayable()
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> bool | None:
         self._cursor_position = (x, y)
