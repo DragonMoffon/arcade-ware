@@ -89,6 +89,15 @@ def ease_quadin(minimum: float, maximum: float, p: float) -> float:
     return lerp(minimum, maximum, p2)
 
 
+def ease_quadout(minimum: float, maximum: float, p: float) -> float:
+    """https://easings.net/#easeOutQuad
+       * `minimum: float`: the value returned by `p == 0`
+       * `maximum: float`: the value returned by `p == 1`
+       * `p: float`: percentage of progression, 0 to 1"""
+    p2 = 1 - math.pow(1 - p, 4)
+    return lerp(minimum, maximum, p2)
+
+
 def ease_quartout(minimum: float, maximum: float, p: float) -> float:
     """https://easings.net/#easeOutQuart
        * `minimum: float`: the value returned by `p == 0`
