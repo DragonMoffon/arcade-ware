@@ -2,7 +2,7 @@
 
 import importlib.resources as pkg_resources
 from arcade import Sprite, Texture, Sound, load_texture as _load_texture, load_sound as _load_sound, load_font as _load_font
-import data
+import aware.data as data
 
 def load_texture(name: str, ext: str = "png") -> Texture:
     with pkg_resources.path(data) as p:
