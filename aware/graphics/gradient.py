@@ -5,7 +5,6 @@ from arcade import ArcadeContext, get_window, Rect
 from arcade.types import RGBOrA255
 import arcade.gl as gl
 
-
 from aware.data.loading import load_shader
 
 class Gradient:
@@ -109,8 +108,6 @@ class Gradient:
         if self._initialised:
             return
         self.context = ctx = get_window().ctx
-
-
 
         color_estimate = len(self._colors)
         vertex_count = 2 * color_estimate
