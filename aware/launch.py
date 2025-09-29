@@ -7,10 +7,10 @@ from engine.resources import load_resources
 
 def launch():
     # Iterate through the packs folder and import every folder found.
-    # for pack in load_packs():
-    #     print(pack)
-    # # Iterate through the resources folder and load every pack found.
-    # load_resources()
+    for pack in load_packs():
+        print(pack)
+    # Iterate through the resources folder and load every pack found.
+    load_resources()
     window = AWareWindow()
     
     # At the moment just launch straight into the play view with every game and transition.
