@@ -65,6 +65,8 @@ class DoNothingGame(Game):
         if self.state.display_time > 3:
             self.fail()
 
+# Game that just stalls the app
+"""
 class EmulateStallGame(Game):
     def __init__(self, state: PlayState) -> None:
         super().__init__(state, prompt = "STALL!", controls = "default.inputs.nothing", duration = 120.0)
@@ -90,3 +92,4 @@ class EmulateStallGame(Game):
 
     def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
         ...
+"""
