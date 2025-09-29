@@ -1,11 +1,24 @@
+from aware.data.loading import load_font
 from aware.window import AWareWindow
 from aware.views.main_menu import MainMenuView
 
-from engine.finder import load_packs, get_loaded_games, get_loaded_transitions, get_loaded_fails
-from engine.play import PlayView
+from engine.finder import load_packs # get_loaded_games, get_loaded_transitions, get_loaded_fails
+# from engine.play import PlayView
 from engine.resources import load_resources
 
+def load_fonts():
+    for font, ext in [
+        ("AOTFShinGoProBold", "otf"),
+        ("AOTFShinGoProMedium", "otf"),
+        ("JosefinSans-Medium", "ttf"),
+        ("JosefinSans-MediumItalic", "ttf")
+    ]:
+        load_font(font, ext)
+
 def launch():
+    # Prepare fonts
+    load_fonts()
+
     # Iterate through the packs folder and import every folder found.
     for pack in load_packs():
         print(pack)

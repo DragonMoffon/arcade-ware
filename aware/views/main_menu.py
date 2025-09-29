@@ -16,7 +16,6 @@ SPEED_TIME = 2.0
 FOREVER = float("inf")
 
 class MainMenuView(ArcadeView):
-
     def __init__(self) -> None:
         super().__init__()
         self.gradient = Gradient(self.window.rect, ((0.0, style.MENU_LIGHT), (0.5, style.MENU_MIDDLE), (1.0, style.MENU_DARK)), vertical=True)
@@ -55,8 +54,8 @@ class MainMenuView(ArcadeView):
             alpha = int(ease_quadout(255, 0, perc(self.click_time, self.click_time + SPEED_TIME, GLOBAL_CLOCK.time)))
             self.logo.alpha = alpha
             self.play_button.alpha = alpha
-            self.wave_1.color = (*self.wave_1.color[0:3], alpha)
-            self.wave_2.color = (*self.wave_2.color[0:3], alpha)
+            self.wave_1.color = (*self.wave_1.color[0:3], int(alpha / 2))
+            self.wave_2.color = (*self.wave_2.color[0:3], int(alpha / 2))
 
         if GLOBAL_CLOCK.time > self.click_time + SPEED_TIME:
             play_view = PlayView(tuple(get_loaded_games()), tuple(get_loaded_transitions()), tuple(get_loaded_fails()))

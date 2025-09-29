@@ -267,10 +267,10 @@ class PlayView(ArcadeView):
 
         self.remaining_bar = TimeBar(Vec2(0, 0))
         self.remaining_bar.position = Vec2(self.width, self.remaining_bar.back_sprite.height)
-        self.control_icon = Sprite(None, center_x=self.center_x, center_y=self.center_y+60, scale = 3)
-        self.prompt_text = Text('PROMPT!', self.center_x, self.control_icon.bottom + 100, anchor_x = "center", anchor_y = "top", font_size = 48, font_name = "GohuFont 11 Nerd Font Mono")
+        self.control_icon = Sprite(None, center_x=self.center_x, center_y=self.center_y + 30)
+        self.prompt_text = Text('PROMPT!', self.center_x, self.center_y - 30, anchor_x = "center", anchor_y = "top", font_size = 48, font_name = "A-OTF Shin Go Pro", bold = True)
 
-        self.stall_text = Text("We think the game might have stalled... press [END] to skip!", 5, 5, anchor_x = "left", anchor_y = "bottom", font_size = 11, font_name = "GohuFont 11 Nerd Font Mono")
+        self.stall_text = Text("We think the game might have stalled... press [END] to skip!", 5, 5, anchor_x = "left", anchor_y = "bottom", font_size = 11, font_name = "A-OTF Shin Go Pro")
 
     @property
     def cursor_position(self):
@@ -315,6 +315,7 @@ class PlayView(ArcadeView):
             self._active_transition = self._active_display = transition
             self.prompt_text.text = self._next_game.prompt
             self.control_icon.texture = get_texture(self._next_game.controls)
+            self.control_icon.size = (128, 128)
         else:
             # Show a game after a transition.
             if self.state.is_speedup:
