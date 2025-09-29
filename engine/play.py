@@ -29,6 +29,21 @@ class Display:
         # Store the window for fun and profit
         self.window = arcade.get_window()
 
+    @property
+    def time(self) -> float:
+        """The time this display has been shown for."""
+        return self.state.display_time
+    
+    @property
+    def remaining_time(self) -> float:
+        """The time until this display ends (may be infinite)."""
+        return self.state.remaining_time
+    
+    @property
+    def tick_speed(self) -> float:
+        """The current tick speed as a multiplier."""
+        return self.state.tick_speed
+
     def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
         pass
 

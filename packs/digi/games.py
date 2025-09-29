@@ -26,14 +26,14 @@ class DoNothingGame(Game):
 
     @property
     def current_sprite(self) -> arcade.Sprite:
-        return self.sprites[min(3, int(self.state.display_time))]
+        return self.sprites[min(3, int(self.time))]
     
     @property
     def current_hue(self) -> int:
-        return int(self.state.display_time * 4) % 12
+        return int(self.time * 4) % 12
     
     def start(self):
-        self.party_player = self.party_noise.play(speed = self.state.tick_speed)
+        self.party_player = self.party_noise.play(speed = self.tick_speed)
         self.stop_player = self.stop_noise.play()
         self.stop_player.pause()
 
@@ -42,13 +42,13 @@ class DoNothingGame(Game):
         self.stop_player.delete()
 
     def draw(self):
-        if self.state.display_time < 3:
+        if self.time < 3:
             arcade.draw_rect_filled(self.window.rect, noa.get_color(self.current_hue, 8, 8))
         arcade.draw_sprite(self.current_sprite)
 
     def update(self, delta_time: float):
-        if self.state.display_time < 3:
-            self.current_sprite.center_y = bounce(self.window.center_y, self.window.center_y + 50, 60, self.state.display_time)
+        if self.time < 3:
+            self.current_sprite.center_y = bounce(self.window.center_y, self.window.center_y + 50, 60, self.time)
             self.current_sprite.color = noa.get_color((self.current_hue + 6) % 12, 4, 8)
         else:
             self.party_player.pause()
@@ -58,11 +58,11 @@ class DoNothingGame(Game):
         self.succeed()
 
     def on_input(self, symbol: int, modifier: int, pressed: bool):
-        if self.state.display_time > 3:
+        if self.time > 3:
             self.fail()
 
     def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
-        if self.state.display_time > 3:
+        if self.time > 3:
             self.fail()
 
 # Game that just stalls the app
