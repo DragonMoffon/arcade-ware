@@ -13,6 +13,7 @@ SMALL_WAVE_SPEED = 14.3
 BIG_WAVE_SPEED = 10.0
 SPEEDUP = 8.0
 SPEED_TIME = 2.0
+MOVE_AMOUNT = -100
 FOREVER = float("inf")
 
 class MainMenuView(ArcadeView):
@@ -52,10 +53,13 @@ class MainMenuView(ArcadeView):
 
         if GLOBAL_CLOCK.time > self.click_time:
             alpha = int(ease_quadout(255, 0, perc(self.click_time, self.click_time + SPEED_TIME, GLOBAL_CLOCK.time)))
+            pos = int(ease_quadout(self.center_x, self.center_x + MOVE_AMOUNT, perc(self.click_time, self.click_time + SPEED_TIME, GLOBAL_CLOCK.time)))
             self.logo.alpha = alpha
             self.play_button.alpha = alpha
             self.wave_1.color = (*self.wave_1.color[0:3], int(alpha / 2))
             self.wave_2.color = (*self.wave_2.color[0:3], int(alpha / 2))
+            self.logo.center_x = pos
+            self.play_button.center_x = pos
 
         if GLOBAL_CLOCK.time > self.click_time + SPEED_TIME:
             play_view = PlayView(tuple(get_loaded_games()), tuple(get_loaded_transitions()), tuple(get_loaded_fails()))
