@@ -3,14 +3,14 @@ from __future__ import annotations
 import arcade
 
 from aware.anim import bounce
-from engine.play import PlayState, Game
+from engine.play import ContentFlag, PlayState, Game
 from engine.resources import get_sound, get_sprite
 
 from .lib import noa
 
 class DoNothingGame(Game):
     def __init__(self, state: PlayState) -> None:
-        super().__init__(state, prompt = "DO NOTHING!", controls = "default.inputs.nothing", duration = 6.0)
+        super().__init__(state, prompt = "DO NOTHING!", controls = "default.inputs.nothing", duration = 6.0, flags = ContentFlag.PHOTOSENSITIVE)
         self.sprites = [
             get_sprite("digi.donothing.3", self.window.center_x, self.window.center_y),
             get_sprite("digi.donothing.2", self.window.center_x, self.window.center_y),

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from enum import Flag, auto
 from typing import Self
 from random import shuffle, choice
 
@@ -19,6 +20,15 @@ PROMPT_END = 0.5
 CONTROL_START = 1.0
 CONTROL_END = 0.5
 STALL_TIME = 60
+
+class ContentFlag(Flag):
+    NONE = 0
+    PHOTOSENSITIVE = auto()
+    EXTREME_MOTION = auto()
+    COLORBLIND = auto()
+    REQUIRES_AUDIO = auto()
+    REQUIRES_TYPING = auto()
+    JUMPSCARE = auto()
 
 class Display:
     # TODO: seperate the game state from the game view
@@ -76,11 +86,12 @@ class Transition(Display):
         return cls(state)  # type: ignore -- signature thing
 
 class Game(Display):
-    def __init__(self, state: PlayState, prompt: str, controls: str, duration: float) -> None:
+    def __init__(self, state: PlayState, prompt: str, controls: str, duration: float, flags: ContentFlag = ContentFlag.NONE) -> None:
         super().__init__(state, duration)
         # The text prompt for the transition to show, and the id of the control image to show.
         self.prompt: str = prompt
         self.controls: str = controls
+        self.flags = flags
 
     @classmethod
     def create(cls, state: PlayState) -> Self:
@@ -94,6 +105,9 @@ class Game(Display):
 
     def on_time_runout(self):
         self.fail()
+
+    def has_content_flag(self, flag: ContentFlag) -> bool:
+        return bool(self.flags | flag)
 
 # TODO
 class Fail(Display):
