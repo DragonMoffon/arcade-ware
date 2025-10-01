@@ -36,10 +36,12 @@ class MainMenuView(ArcadeView):
         self.wave_clock = Clock()
 
         self.click_time = FOREVER
+        self.clicked = False
 
     def progress(self) -> None:
-        if self.click_time != FOREVER:
+        if not self.clicked:
             self.click_time = GLOBAL_CLOCK.time
+            self.clicked = True
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> None:
         self.progress()
