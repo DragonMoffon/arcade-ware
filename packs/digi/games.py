@@ -10,9 +10,11 @@ from engine.resources import get_sound, get_sprite
 
 from .lib import noa
 
+LEEWAY_TIME = 1.5
+
 class DoNothingGame(Game):
     def __init__(self, state: PlayState) -> None:
-        super().__init__(state, prompt = "DO NOTHING!", controls = "default.inputs.nothing", duration = 6.0, flags = ContentFlag.PHOTOSENSITIVE)
+        super().__init__(state, prompt = "DO NOTHING!", controls = "default.inputs.nothing", duration = LEEWAY_TIME + 3, flags = ContentFlag.PHOTOSENSITIVE)
         self.sprites = [
             get_sprite("digi.donothing.3", self.window.center_x, self.window.center_y),
             get_sprite("digi.donothing.2", self.window.center_x, self.window.center_y),
@@ -28,7 +30,7 @@ class DoNothingGame(Game):
 
     @property
     def current_sprite(self) -> arcade.Sprite:
-        return self.sprites[min(3, int(self.time))]
+        return self.sprites[min(3, int(self.time * (3 / LEEWAY_TIME)))]
     
     @property
     def current_hue(self) -> int:
@@ -44,13 +46,13 @@ class DoNothingGame(Game):
         self.stop_player.delete()
 
     def draw(self):
-        if self.time < 3:
+        if self.time < LEEWAY_TIME:
             arcade.draw_rect_filled(self.window.rect, noa.get_color(self.current_hue, 8, 8))
         arcade.draw_sprite(self.current_sprite)
 
     def update(self, delta_time: float):
-        if self.time < 3:
-            self.current_sprite.center_y = bounce(self.window.center_y, self.window.center_y + 50, 60, self.time)
+        if self.time < LEEWAY_TIME:
+            self.current_sprite.center_y = bounce(self.window.center_y, self.window.center_y + 50, 60 * (3 / LEEWAY_TIME), self.time)
             self.current_sprite.color = noa.get_color((self.current_hue + 6) % 12, 4, 8)
         else:
             self.party_player.pause()
@@ -60,11 +62,11 @@ class DoNothingGame(Game):
         self.succeed()
 
     def on_input(self, symbol: int, modifier: int, pressed: bool):
-        if self.time > 3:
+        if self.time > LEEWAY_TIME:
             self.fail()
 
     def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
-        if self.time > 3:
+        if self.time > LEEWAY_TIME:
             self.fail()
 
 VERY_LONG = 60 * 60
@@ -150,8 +152,9 @@ class SortGame(Game):
                 self.scramble()
         else:
             if self.selected_ball:
-                self.selected_ball.position = self.cursor_pos
+                self.selected_ball.position = self.cursor_pos if (self.cursor_pos in self.red_side or self.cursor_pos in self.blue_side) else self.selected_ball.position
             if self.completed:
+                self.finish_time = self.time
                 self.sorting_done = True
         if self.time > self.finish_time + 1:
             self.succeed()
@@ -182,14 +185,14 @@ class LetterGame(Game):
         super().__init__(state, prompt = "PRESS!", controls = "default.inputs.keyboard", duration = 3.0)
         self.chosen_letter = random.choice(LETTERS)
         self.sound = get_sound(f"digi.letters.{self.chosen_letter}")
-        self.text = arcade.Text('?', self.window.center_x, self.window.center_y, anchor_x = "center", anchor_y = "center", font_size = 240, font_name = "8BITOPERATOR JVE")
+        self.text = arcade.Text('?', self.window.center_x, self.window.center_y, anchor_x = "center", anchor_y = "bottom", font_size = 240, font_name = "8BITOPERATOR JVE")
 
         self.win_sound = get_sound("digi.sounds.snd_coin")
         self.lose_sound = get_sound("digi.sounds.snd_error")
 
         self.win_state: bool | None = None
         self.win_time = float("inf")
-    
+
     def start(self):
         self.chosen_letter = random.choice(LETTERS)
         self.sound = get_sound(f"digi.letters.{self.chosen_letter}")
@@ -213,7 +216,7 @@ class LetterGame(Game):
             self.on_time_runout()
 
     def on_input(self, symbol: int, modifier: int, pressed: bool):
-        if symbol in KEY_MAPPING:
+        if symbol in KEY_MAPPING and pressed:
             if KEY_MAPPING[symbol] == self.chosen_letter:
                 self.text.color = arcade.color.GREEN
                 self.win_sound.play()
