@@ -86,12 +86,13 @@ class Transition(Display):
         return cls(state)  # type: ignore -- signature thing
 
 class Game(Display):
-    def __init__(self, state: PlayState, prompt: str, controls: str, duration: float, flags: ContentFlag = ContentFlag.NONE) -> None:
+    def __init__(self, state: PlayState, prompt: str, controls: str, duration: float, flags: ContentFlag = ContentFlag.NONE, boss: bool = False) -> None:
         super().__init__(state, duration)
         # The text prompt for the transition to show, and the id of the control image to show.
         self.prompt: str = prompt
         self.controls: str = controls
         self.flags = flags
+        self.boss = boss
 
     @classmethod
     def create(cls, state: PlayState) -> Self:

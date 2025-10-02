@@ -153,7 +153,7 @@ class SortGame(Game):
                 self.selected_ball.position = self.cursor_pos
             if self.completed:
                 self.sorting_done = True
-        if self.finish_time + 1 < self.time:
+        if self.time > self.finish_time + 1:
             self.succeed()
 
     def on_time_runout(self):
@@ -173,27 +173,54 @@ class SortGame(Game):
         elif symbol == arcade.MOUSE_BUTTON_LEFT and not pressed:
             self.selected_ball = None
 
-class NewGame(Game):
+LETTERS = "abcdefghijklmnopqrstuvwxyz"
+KEY_MAPPING = {getattr(arcade.key, let.upper()): let for let in LETTERS}
+LEAVE_TIME = 1.0
+
+class LetterGame(Game):
     def __init__(self, state: PlayState) -> None:
-        super().__init__(state, prompt = "SORT!", controls = "default.inputs.mouse", duration = VERY_LONG, flags = ContentFlag.NONE)
+        super().__init__(state, prompt = "PRESS!", controls = "default.inputs.keyboard", duration = 3.0)
+        self.chosen_letter = random.choice(LETTERS)
+        self.sound = get_sound(f"digi.letters.{self.chosen_letter}")
+        self.text = arcade.Text('?', self.window.center_x, self.window.center_y, anchor_x = "center", anchor_y = "center", font_size = 240, font_name = "8BITOPERATOR JVE")
+
+        self.win_sound = get_sound("digi.sounds.snd_coin")
+        self.lose_sound = get_sound("digi.sounds.snd_error")
+
+        self.win_state: bool | None = None
+        self.win_time = float("inf")
     
     def start(self):
-        ...
+        self.chosen_letter = random.choice(LETTERS)
+        self.sound = get_sound(f"digi.letters.{self.chosen_letter}")
+        self.text.text = self.chosen_letter.upper()
+        self.text.color = arcade.color.WHITE
+        self.win_state = None
 
-    def finish(self):
-        ...
+        self.sound.play()
 
     def draw(self):
-        ...
-
-    def update(self, delta_time: float):
-        ...
+        self.text.draw()
 
     def on_time_runout(self):
-        self.fail()
+        if self.win_state is True:
+            self.succeed()
+        else:
+            self.fail()
 
-    def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
-        ...
+    def update(self, delta_time: float):
+        if self.time > self.win_time + LEAVE_TIME:
+            self.on_time_runout()
 
     def on_input(self, symbol: int, modifier: int, pressed: bool):
-        ...
+        if symbol in KEY_MAPPING:
+            if KEY_MAPPING[symbol] == self.chosen_letter:
+                self.text.color = arcade.color.GREEN
+                self.win_sound.play()
+                self.win_state = True
+                self.win_time = self.time
+            else:
+                self.text.color = arcade.color.RED
+                self.lose_sound.play()
+                self.win_state = False
+                self.win_time = self.time
