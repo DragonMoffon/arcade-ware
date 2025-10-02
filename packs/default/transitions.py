@@ -8,7 +8,7 @@ from engine.play import PlayState, Transition
     
 class DefaultTransition(Transition):
     def __init__(self, state: PlayState) -> None:
-        super().__init__(state, 3)
+        super().__init__(state, 3.0)
         self.gradient = Gradient(self.window.rect, ((0.0, style.MENU_LIGHT), (0.5, style.MENU_MIDDLE), (1.0, style.MENU_DARK)), vertical=True)
         self.text = arcade.Text("", self.state.screen_width/2.0, self.state.screen_height/2.0, anchor_x="center", anchor_y="center", font_size = 24, font_name = "A-OTF Shin Go Pro", bold = True)
     

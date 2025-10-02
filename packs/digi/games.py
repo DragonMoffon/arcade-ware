@@ -143,7 +143,7 @@ class SortGame(Game):
         if not self.scrambling_done:
             if self.check_scramble():
                 self.scrambling_done = True
-                # This accesses a private member to do this, but does it have to be private?
+                # !: This accesses a private member to do this, but does it have to be private?
                 self._duration = 6.0 + self.time
                 return
             else:
@@ -172,3 +172,28 @@ class SortGame(Game):
                     self.selected_ball = ball
         elif symbol == arcade.MOUSE_BUTTON_LEFT and not pressed:
             self.selected_ball = None
+
+class NewGame(Game):
+    def __init__(self, state: PlayState) -> None:
+        super().__init__(state, prompt = "SORT!", controls = "default.inputs.mouse", duration = VERY_LONG, flags = ContentFlag.NONE)
+    
+    def start(self):
+        ...
+
+    def finish(self):
+        ...
+
+    def draw(self):
+        ...
+
+    def update(self, delta_time: float):
+        ...
+
+    def on_time_runout(self):
+        self.fail()
+
+    def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
+        ...
+
+    def on_input(self, symbol: int, modifier: int, pressed: bool):
+        ...

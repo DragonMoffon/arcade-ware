@@ -6,7 +6,7 @@ from engine.play import PlayState, Game
 
 class TemplateGame(Game):
     def __init__(self, state: PlayState) -> None:
-        super().__init__(state, prompt = "PROMPT", controls = "default.inputs.nothing", duration = 4.0, success_duration = None)
+        super().__init__(state, prompt = "PROMPT", controls = "default.inputs.nothing", duration = 10.0)
         ...
     
     def start(self):
