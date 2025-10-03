@@ -11,6 +11,7 @@ class DefaultTransition(Transition):
         super().__init__(state, 3.0)
         self.gradient = Gradient(self.window.rect, ((0.0, style.MENU_LIGHT), (0.5, style.MENU_MIDDLE), (1.0, style.MENU_DARK)), vertical=True)
         self.text = arcade.Text("", self.state.screen_width/2.0, self.state.screen_height/2.0, anchor_x="center", anchor_y="center", font_size = 24, font_name = "A-OTF Shin Go Pro", bold = True)
+        self.text2 = arcade.Text("", self.state.screen_width/2.0, self.text.bottom - 10, anchor_x="center", anchor_y="top", font_size = 24, font_name = "A-OTF Shin Go Pro", bold = True)
     
     def draw(self):
         self.gradient.draw()
@@ -20,5 +21,7 @@ class DefaultTransition(Transition):
             text = f"SPEEDUP!!! ({self.state.tick_speed:.2f}x)"
         else:
             text = "TRANSITION..."
-        self.text.text = f"{text} GAME: {self.state.count}, FAILED: {self.state.strikes}"
+        self.text.text = text
+        self.text2.text = f"GAME: {self.state.count}, FAILED: {self.state.strikes}"
         self.text.draw()
+        self.text2.draw()

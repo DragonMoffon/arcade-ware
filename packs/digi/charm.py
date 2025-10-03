@@ -94,6 +94,8 @@ class CharmGame(Game):
         self.chart: list[Note] = self.generate_chart(NOTES, BPM)
         self.note_sprites: list[NoteSprite] = [NoteSprite(n) for n in self.chart]
         self.spritelist.extend([n.sprite for n in self.note_sprites])
+        for n, s in enumerate(self.strikeline_sprites):
+            s.texture = self.strikeline_off_textures[n]
 
     def finish(self):
         self.spritelist.clear()

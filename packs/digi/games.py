@@ -216,7 +216,7 @@ class LetterGame(Game):
             self.on_time_runout()
 
     def on_input(self, symbol: int, modifier: int, pressed: bool):
-        if symbol in KEY_MAPPING and pressed:
+        if symbol in KEY_MAPPING and pressed and self.win_state is not None:
             if KEY_MAPPING[symbol] == self.chosen_letter:
                 self.text.color = arcade.color.GREEN
                 self.win_sound.play()

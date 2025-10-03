@@ -13,7 +13,7 @@ class ShakeEmUp(Game):
     def __init__(self, state: PlayState) -> None:
         super().__init__(state, prompt = "SHAKE!", controls = "default.inputs.mouse_move", duration = 4.0)
         self.box = arcade.SpriteSolidColor(100, 100, self.state.screen_width / 2, self.state.screen_height / 2)
-        self.text = arcade.Text("0 SHAKES!", self.state.screen_width / 2, 100, anchor_x='center', anchor_y='center', font_size = 26)
+        self.text = arcade.Text("0 SHAKES!", self.state.screen_width / 2, 100, anchor_x='center', anchor_y='center', font_size = 26, font_name = "A-OTF Shin Go Pro")
         self.dragging: bool = False
         self.sep: tuple[float, float] = (0.0, 0.0)
         self.shakes: int = 0
@@ -31,6 +31,7 @@ class ShakeEmUp(Game):
         self.motion_dir = None
         self.player = self.sound.play(0.0, speed=self.state.tick_speed)
         self.text.text = "0 SHAKES!"
+        self.text.color = arcade.color.WHITE
 
     def finish(self):
         if self.player is not None:
@@ -71,7 +72,7 @@ class ShakeEmUp(Game):
                     self.text.text = f"{self.shakes} SHAKES!"
                     p = self.shakes / self.shake_goal
                     c = int(255 * max(0.0, 1.0 - p))
-                    self.text.color = (255, c, c)
+                    self.text.color = (255, c, c) if self.shakes < self.shake_goal else (0, 255, 0)
                     # self.text.font_size = 12 * (1 - p) + p * 36
 
 
@@ -86,7 +87,7 @@ class JuggleTheBall(Game):
         self.balls.extend((arcade.SpriteCircle(25, (255, 255, 255, 255), center_x=self.state.screen_width/2, center_y=self.state.screen_height/2) for _ in range(3)))
         self.clicks = 0
 
-        self.clicks_remaining_text = arcade.Text(f"{self.REQUIRED_CLICKS}", self.window.center_x, self.window.center_y, color = arcade.color.WHITE.replace(a = 64), font_size = 100, align = "center", anchor_x = "center", anchor_y = "center")
+        self.clicks_remaining_text = arcade.Text(f"{self.REQUIRED_CLICKS}", self.window.center_x, self.window.center_y, color = arcade.color.WHITE.replace(a = 64), font_size = 100, align = "center", anchor_x = "center", anchor_y = "center", font_name = "Josefin Sans")
 
     def start(self):
         if self._last_active_ball is not None:
