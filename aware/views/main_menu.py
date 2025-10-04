@@ -65,7 +65,8 @@ class MainMenuView(ArcadeView):
             self.play_button.center_x = pos
 
         if GLOBAL_CLOCK.time > self.click_time + SPEED_TIME:
-            play_view = PlayView(tuple(get_loaded_games()), tuple(get_loaded_transitions()), tuple(get_loaded_fails()))
+            filter = []  # !: EDIT THIS TO TEST GAMES
+            play_view = PlayView(tuple(get_loaded_games()), tuple(get_loaded_transitions()), tuple(get_loaded_fails()), filter)
             self.window.show_view(play_view)
 
     def on_draw(self) -> None:

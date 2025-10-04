@@ -73,14 +73,16 @@ VERY_LONG = 60 * 60
 BALL_COUNT = 10
 BALL_RADIUS = 20
 
+RED_BALL_COLOR = noa.get_color(0, 4, 9)
 RED_SIDE_COLOR = noa.get_color(0, 8, 9)
+BLUE_BALL_COLOR = noa.get_color(9, 4, 9)
 BLUE_SIDE_COLOR = noa.get_color(9, 8, 9)
 
 class SortGame(Game):
     def __init__(self, state: PlayState) -> None:
         super().__init__(state, prompt = "SORT!", controls = "default.inputs.mouse", duration = VERY_LONG, flags = ContentFlag.COLORBLIND)
-        self.red_balls = [arcade.SpriteCircle(BALL_RADIUS, noa.get_color(0, 4, 9)) for _ in range(int(BALL_COUNT / 2))]
-        self.blue_balls = [arcade.SpriteCircle(BALL_RADIUS, noa.get_color(9, 4, 9))  for _ in range(int(BALL_COUNT / 2))]
+        self.red_balls = [arcade.SpriteCircle(BALL_RADIUS, RED_BALL_COLOR) for _ in range(int(BALL_COUNT / 2))]
+        self.blue_balls = [arcade.SpriteCircle(BALL_RADIUS, BLUE_BALL_COLOR)  for _ in range(int(BALL_COUNT / 2))]
 
         self.spritelist = arcade.SpriteList()
         self.spritelist.extend(self.red_balls + self.blue_balls)
@@ -302,3 +304,102 @@ class WhackAMoleGame(Game):
 
     def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
         self.cursor_pos = (x, y)
+
+CSB_TO_AW = (720 / 1080)
+NEEDED_HITS = 20
+PENCIL_CENTIMETERS = 10.0
+PENCIL_START = 1359 * CSB_TO_AW
+PENCIL_LENGTH = 716 * CSB_TO_AW
+
+class PencilSharpeningGame(Game):
+    def __init__(self, state: PlayState) -> None:
+        super().__init__(state, prompt = "SHARPEN!", controls = "digi.inputs.qe", duration = 5.0)
+
+        self.bg = get_sprite("digi.pencil.stage_back")
+        self.stage_right_1 = get_sprite("digi.pencil.stage_right_1")
+        self.stage_right_2 = get_sprite("digi.pencil.stage_right_2")
+        self.pencil = get_sprite("digi.pencil.pencil")
+
+        self.red_x = get_sprite("digi.pencil.red_x")
+        self.red_x.scale = 0.5
+        self.key_e = get_sprite("digi.pencil.key_e")
+        self.key_e.scale = 0.5
+        self.key_q = get_sprite("digi.pencil.key_q")
+        self.key_q.scale = 0.5
+
+        self.fail_sound = get_sound("digi.pencil.fail")
+
+         # !: Remove this, these are 1080-compat CSB assets
+        for s in [self.bg, self.stage_right_1, self.stage_right_2, self.pencil, self.red_x, self.key_e, self.key_q]:
+            s.scale = (s.scale[0] * CSB_TO_AW, s.scale[1] * CSB_TO_AW)
+
+        self.bg.position = self.window.center
+        self.pencil.position = self.window.center
+        self.pencil.right = PENCIL_START
+        self.stage_right_1.position = self.window.center
+        self.stage_right_1.right = self.window.rect.right
+        self.stage_right_2.position = self.window.center
+        self.stage_right_2.right = self.window.rect.right
+        self.red_x.position = (self.stage_right_1.left, self.window.center_y)
+
+        self.key_q.position = (self.window.width * 0.4, self.window.height * 0.25)
+        self.key_e.position = (self.window.width * 0.6, self.window.height * 0.25)
+
+        self.key_e.alpha = 64
+        self.stage_right_2.alpha = 0
+        self.red_x.alpha = 0
+
+        self.spritelist = arcade.SpriteList()
+        self.spritelist.extend([self.bg, self.pencil, self.stage_right_1, self.stage_right_2, self.key_e, self.key_q, self.red_x])
+
+        self.hit_e_next = False
+        self.hits = 0
+
+        self.cm_text = arcade.Text('10.0cm', self.window.width - 10, self.window.height - 10, anchor_x = "right", anchor_y = "top", font_size = 48, font_name = "A-OTF Shin Go Pro", bold = True)
+
+    @property
+    def failed(self) -> bool:
+        return self.hits > NEEDED_HITS
+
+    def start(self):
+        self.hit_e_next = False
+        self.hits = 0
+
+        self.key_q.alpha = 255
+        self.key_e.alpha = 64
+        self.stage_right_1.alpha = 255
+        self.stage_right_2.alpha = 0
+        self.red_x.alpha = 0
+
+    def draw(self):
+        self.spritelist.draw()
+        self.cm_text.draw()
+
+    def on_time_runout(self):
+        if self.hits < NEEDED_HITS or self.failed:
+            self.fail()
+        else:
+            self.succeed()
+
+    def on_input(self, symbol: int, modifier: int, pressed: bool):
+        if (self.hit_e_next and symbol == arcade.key.E and pressed and self.hits <= NEEDED_HITS) \
+            or (not self.hit_e_next and symbol == arcade.key.Q and pressed and self.hits <= NEEDED_HITS):
+            self.hit_e_next = not self.hit_e_next
+            self.hits += 1
+            self.cm_text.text = f"{PENCIL_CENTIMETERS * (1 - self.hits / NEEDED_HITS):.1f}cm"
+            self.pencil.right = PENCIL_START + (PENCIL_LENGTH * (self.hits / 20))
+
+            if symbol == arcade.key.E:
+                self.key_q.alpha = 255
+                self.key_e.alpha = 64
+                self.stage_right_1.alpha = 255
+                self.stage_right_2.alpha = 0
+            elif symbol == arcade.key.Q:
+                self.key_q.alpha = 64
+                self.key_e.alpha = 255
+                self.stage_right_1.alpha = 0
+                self.stage_right_2.alpha = 255
+
+            if self.hits > NEEDED_HITS:
+                self.red_x.alpha = 255
+                self.fail_sound.play(volume = 0.5)
