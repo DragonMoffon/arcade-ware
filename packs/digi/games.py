@@ -105,7 +105,7 @@ class SortGame(Game):
     def scramble(self) -> None:
         for ball in self.all_balls:
             x = random.randrange(BALL_RADIUS, self.window.width - BALL_RADIUS)
-            y = random.randrange(BALL_RADIUS, self.window.height - BALL_RADIUS - 65)
+            y = random.randrange(BALL_RADIUS, self.window.height - BALL_RADIUS - 65) + 65
             ball.position = (x, y)
 
     @property
@@ -216,7 +216,7 @@ class LetterGame(Game):
             self.on_time_runout()
 
     def on_input(self, symbol: int, modifier: int, pressed: bool):
-        if symbol in KEY_MAPPING and pressed and self.win_state is not None:
+        if symbol in KEY_MAPPING and pressed and self.win_state is None:
             if KEY_MAPPING[symbol] == self.chosen_letter:
                 self.text.color = arcade.color.GREEN
                 self.win_sound.play()
@@ -259,7 +259,6 @@ class WhackAMoleGame(Game):
                 x = c * (self.bounds.width * (1 / (GRID_COLUMNS - 1))) + self.bounds.left
                 y = r * (self.bounds.height * (1 / (GRID_ROWS - 1))) + self.bounds.bottom
                 pos = (x, y)
-                print(f"Sprite {idx}: {pos}")
                 sprite.position = pos
 
     @property

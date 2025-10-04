@@ -22,7 +22,7 @@ STRIKELINE_ALPHA = 128
 
 BG_COLOR = Color.from_hex_string("b3fdc8")
 
-HIT_WINDOW = 0.070  # 70ms +/-
+HIT_WINDOW = 0.100  # 100ms +/- # * THIS IS HUGE. ON PURPOSE.
 
 @dataclass
 class Note:
