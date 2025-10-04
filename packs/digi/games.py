@@ -227,3 +227,79 @@ class LetterGame(Game):
                 self.lose_sound.play()
                 self.win_state = False
                 self.win_time = self.time
+
+REQUIRED_WHACKS = 10
+WHACKS_PER_SECOND = 1.5
+GRID_ROWS = 5
+GRID_COLUMNS = 7
+SPOT_SIZE = 25
+
+class WhackAMoleGame(Game):
+    def __init__(self, state: PlayState) -> None:
+        super().__init__(state, prompt = "WHACK!", controls = "default.inputs.mouse", duration = REQUIRED_WHACKS / WHACKS_PER_SECOND)
+
+        self.sprites = [arcade.SpriteCircle(SPOT_SIZE, arcade.color.RED) for _ in range(GRID_ROWS * GRID_COLUMNS)]
+        self.spritelist = arcade.SpriteList()
+        self.spritelist.extend(self.sprites)
+
+        self.bounds = self.window.rect.scale(0.8).align_top(self.window.height)
+        self.bounds = self.bounds.resize(self.bounds.width - SPOT_SIZE * 2, self.bounds.height - SPOT_SIZE * 2)
+
+        self.grid_layout()
+        self.game_won = False
+        self.won_text = arcade.Text('GOOD JOB!', self.window.center_x, self.window.center_y, anchor_x = "center", anchor_y = "center", font_size = 72, font_name = "A-OTF Shin Go Pro", bold = True)
+
+        self.cursor_pos = (0, 0)
+
+    def grid_layout(self):
+        for c in range(GRID_COLUMNS):
+            for r in range(GRID_ROWS):
+                idx = (c * GRID_ROWS) + r
+                sprite = self.sprites[idx]
+                x = c * (self.bounds.width * (1 / (GRID_COLUMNS - 1))) + self.bounds.left
+                y = r * (self.bounds.height * (1 / (GRID_ROWS - 1))) + self.bounds.bottom
+                pos = (x, y)
+                print(f"Sprite {idx}: {pos}")
+                sprite.position = pos
+
+    @property
+    def success(self) -> bool:
+        return all([s.color == arcade.color.RED for s in self.sprites])
+
+    def starting_state(self):
+        idxs = random.choices(range(GRID_COLUMNS * GRID_ROWS), k = REQUIRED_WHACKS)
+        for i in idxs:
+            self.sprites[i].color = arcade.color.GREEN
+
+    def start(self):
+        self.starting_state()
+        self.game_won = False
+
+    def draw(self):
+        self.spritelist.draw()
+        if self.game_won:
+            self.won_text.draw()
+
+    def on_time_runout(self):
+        if self.game_won:
+            self.succeed()
+        else:
+            self.fail()
+
+    def update(self, delta_time: float):
+        if self.success:
+            self.game_won = True
+
+        if self.game_won:
+            for s in self.sprites:
+                s.color = arcade.color.GREEN if int(self.time * 4) % 2 else arcade.color.RED
+
+    def on_input(self, symbol: int, modifier: int, pressed: bool):
+        if symbol == arcade.MOUSE_BUTTON_LEFT and pressed:
+            for s in self.sprites:
+                if s.collides_with_point(self.cursor_pos):
+                    s.color = arcade.color.RED
+                    break
+
+    def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
+        self.cursor_pos = (x, y)
