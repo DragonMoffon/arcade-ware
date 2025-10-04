@@ -72,6 +72,7 @@ class DoNothingGame(Game):
 VERY_LONG = 60 * 60
 BALL_COUNT = 10
 BALL_RADIUS = 20
+SORT_DURATION = 7.5
 
 RED_BALL_COLOR = noa.get_color(0, 4, 9)
 RED_SIDE_COLOR = noa.get_color(0, 8, 9)
@@ -113,7 +114,9 @@ class SortGame(Game):
     @property
     def completed(self) -> bool:
         return (all([ball.position in self.red_side for ball in self.red_balls]) and
-                all([ball.position in self.blue_side for ball in self.blue_balls]))
+                all([ball.position in self.blue_side for ball in self.blue_balls])) or \
+                (all([ball.position in self.red_side for ball in self.blue_balls]) and
+                all([ball.position in self.blue_side for ball in self.red_balls]))
 
     def check_scramble(self) -> bool:
         if self.completed or self.time < 1:
@@ -148,7 +151,7 @@ class SortGame(Game):
             if self.check_scramble():
                 self.scrambling_done = True
                 # !: This accesses a private member to do this, but does it have to be private?
-                self._duration = 6.0 + self.time
+                self._duration = SORT_DURATION + self.time
                 return
             else:
                 self.scramble()
