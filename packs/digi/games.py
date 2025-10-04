@@ -190,8 +190,8 @@ class LetterGame(Game):
         self.sound = get_sound(f"digi.letters.{self.chosen_letter}")
         self.text = arcade.Text('?', self.window.center_x, self.window.center_y, anchor_x = "center", anchor_y = "bottom", font_size = 240, font_name = "8BITOPERATOR JVE")
 
-        self.win_sound = get_sound("digi.sounds.snd_coin")
-        self.lose_sound = get_sound("digi.sounds.snd_error")
+        self.win_sound = get_sound("digi.sounds.coin")
+        self.lose_sound = get_sound("digi.sounds.error")
 
         self.win_state: bool | None = None
         self.win_time = float("inf")
@@ -328,7 +328,7 @@ class PencilSharpeningGame(Game):
         self.key_q = get_sprite("digi.pencil.key_q")
         self.key_q.scale = 0.5
 
-        self.fail_sound = get_sound("digi.pencil.fail")
+        self.fail_sound = get_sound("digi.sounds.fail")
 
          # !: Remove this, these are 1080-compat CSB assets
         for s in [self.bg, self.stage_right_1, self.stage_right_2, self.pencil, self.red_x, self.key_e, self.key_q]:
