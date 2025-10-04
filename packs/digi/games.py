@@ -155,7 +155,7 @@ class SortGame(Game):
         else:
             if self.selected_ball:
                 self.selected_ball.position = self.cursor_pos if (self.cursor_pos in self.red_side or self.cursor_pos in self.blue_side) else self.selected_ball.position
-            if self.completed:
+            if self.completed and not self.sorting_done:
                 self.finish_time = self.time
                 self.sorting_done = True
         if self.time > self.finish_time + 1:
@@ -355,7 +355,7 @@ class PencilSharpeningGame(Game):
         self.hit_e_next = False
         self.hits = 0
 
-        self.cm_text = arcade.Text('10.0cm', self.window.width - 10, self.window.height - 10, anchor_x = "right", anchor_y = "top", font_size = 48, font_name = "A-OTF Shin Go Pro", bold = True)
+        self.cm_text = arcade.Text('10.0cm', self.window.width - 10, self.window.height - 10, anchor_x = "right", anchor_y = "top", align = "right", font_size = 48, font_name = "A-OTF Shin Go Pro", bold = True)
 
     @property
     def failed(self) -> bool:
@@ -370,6 +370,9 @@ class PencilSharpeningGame(Game):
         self.stage_right_1.alpha = 255
         self.stage_right_2.alpha = 0
         self.red_x.alpha = 0
+
+        self.cm_text.text = f"{PENCIL_CENTIMETERS * (1 - self.hits / NEEDED_HITS):.1f}cm"
+        self.cm_text.color = arcade.color.WHITE
 
     def draw(self):
         self.spritelist.draw()
@@ -400,6 +403,9 @@ class PencilSharpeningGame(Game):
                 self.stage_right_1.alpha = 0
                 self.stage_right_2.alpha = 255
 
+            if self.hits == NEEDED_HITS:
+                self.cm_text.color = arcade.color.GREEN
             if self.hits > NEEDED_HITS:
                 self.red_x.alpha = 255
                 self.fail_sound.play(volume = 0.5)
+                self.cm_text.color = arcade.color.RED
