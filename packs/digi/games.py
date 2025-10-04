@@ -114,9 +114,7 @@ class SortGame(Game):
     @property
     def completed(self) -> bool:
         return (all([ball.position in self.red_side for ball in self.red_balls]) and
-                all([ball.position in self.blue_side for ball in self.blue_balls])) or \
-                (all([ball.position in self.red_side for ball in self.blue_balls]) and
-                all([ball.position in self.blue_side for ball in self.red_balls]))
+                all([ball.position in self.blue_side for ball in self.blue_balls]))
 
     def check_scramble(self) -> bool:
         if self.completed or self.time < 1:
