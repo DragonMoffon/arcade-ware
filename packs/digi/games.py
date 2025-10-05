@@ -579,6 +579,11 @@ class ComboLockGame(Game):
         self.digit_3.draw()
         self.spritelist.draw()
 
+        # !: YEAH THE RECTS ARE WRONG AS HELL WHAT THE FRICK IS THIS
+        # for t in [self.digit_1, self.digit_2, self.digit_3]:
+        #     r = arcade.rect.LRBT(t.left, t.right, t.bottom, t.top)
+        #     arcade.draw_rect_outline(r, arcade.color.MAGENTA, 3)
+
     def update(self, delta_time: float):
         self.set_arrows()
         self.highlight()
