@@ -4,7 +4,7 @@ import random
 import arcade
 from arcade.types import AnchorPoint
 
-from aware.anim import bounce
+from aware.anim import bounce, lerp
 from engine.play import ContentFlag, PlayState, Game
 from engine.resources import get_sound, get_sprite
 
@@ -410,3 +410,39 @@ class PencilSharpeningGame(Game):
                 self.red_x.alpha = 255
                 self.fail_sound.play(volume = 0.5)
                 self.cm_text.color = arcade.color.RED
+
+CHOP_REGION_SIZE = 100
+MOVE_SPEED = 1.0
+KNIFE_WIDTH = 10
+
+class ChopGame(Game):
+    def __init__(self, state: PlayState) -> None:
+        super().__init__(state, prompt = "CHOP!", controls = "default.inputs.spacebar", duration = 3.0)
+
+        self.chop_region = arcade.rect.XYWH(0, self.window.center_y, CHOP_REGION_SIZE, self.window.height / 3)
+        self.chop_region = self.chop_region.align_x(random.randrange(int(CHOP_REGION_SIZE / 2), int(self.window.width - CHOP_REGION_SIZE / 2)))
+
+        self.knife = arcade.rect.XYWH(self.window.center_x, self.window.center_y, KNIFE_WIDTH, self.window.height / 1.5)
+
+    def start(self):
+        ...
+
+    def draw(self):
+        arcade.draw_rect_filled(self.chop_region, arcade.color.RED.replace(a = 128))
+        arcade.draw_rect_filled(self.knife, arcade.color.BLUE)
+
+    def update(self, delta_time: float):
+        if int(self.time * MOVE_SPEED) % 2:
+            self.knife = self.knife.align_x(lerp(KNIFE_WIDTH / 2, self.window.width - KNIFE_WIDTH / 2, (self.time * MOVE_SPEED) % 1))
+        else:
+            self.knife = self.knife.align_x(lerp(self.window.width - KNIFE_WIDTH / 2, KNIFE_WIDTH / 2, (self.time * MOVE_SPEED) % 1))
+
+    def on_time_runout(self):
+        self.fail()
+
+    def on_input(self, symbol: int, modifier: int, pressed: bool):
+        if symbol == arcade.key.SPACE:
+            if self.knife.overlaps(self.chop_region):
+                self.succeed()
+            else:
+                self.fail()
