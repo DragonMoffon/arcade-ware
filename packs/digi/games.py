@@ -467,16 +467,16 @@ class ComboLockGame(Game):
         # I DON'T WANT TO CHEAT THE NUMBERS TO LOOK RIGHT BECAUSE THEN THE MATH IS WRONG
         # I'M TIRED OF FUDGING THIS I THINK TEXT BOUNDS ARE JUST WRONG
 
-        self.digit_1_up.center_x = self.digit_1.x
-        self.digit_2_up.center_x = self.digit_2.x
-        self.digit_3_up.center_x = self.digit_3.x
+        self.digit_1_up.center_x = self.digit_1.left + self.digit_1.content_width / 2
+        self.digit_2_up.center_x = self.digit_2.left + self.digit_2.content_width / 2
+        self.digit_3_up.center_x = self.digit_3.left + self.digit_2.content_width / 2
         self.digit_1_up.bottom = self.digit_1.top + 10
         self.digit_2_up.bottom = self.digit_2.top + 10
         self.digit_3_up.bottom = self.digit_3.top + 10
 
-        self.digit_1_down.center_x = self.digit_1.x
-        self.digit_2_down.center_x = self.digit_2.x
-        self.digit_3_down.center_x = self.digit_3.x
+        self.digit_1_down.center_x = self.digit_1.left + self.digit_1.content_width / 2
+        self.digit_2_down.center_x = self.digit_2.left + self.digit_2.content_width / 2
+        self.digit_3_down.center_x = self.digit_3.left + self.digit_2.content_width / 2
         self.digit_1_down.top = self.digit_1.bottom - 10
         self.digit_2_down.top = self.digit_2.bottom - 10
         self.digit_3_down.top = self.digit_3.bottom - 10
