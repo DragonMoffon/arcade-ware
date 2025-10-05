@@ -446,3 +446,188 @@ class ChopGame(Game):
                 self.succeed()
             else:
                 self.fail()
+
+class ComboLockGame(Game):
+    def __init__(self, state: PlayState) -> None:
+        super().__init__(state, prompt = "UNLOCK!", controls = "default.inputs.arrows", duration = 5.0)
+
+        self.digit_2 = arcade.Text('2', self.window.center_x, self.window.center_y + 60, anchor_x = "center", anchor_y = "center", align = "center", font_size = 240, font_name = "8BITOPERATOR JVE")
+        self.digit_1 = arcade.Text('1', self.digit_2.left - 10, self.window.center_y + 60, anchor_x = "right", anchor_y = "center", align = "right", font_size = 240, font_name = "8BITOPERATOR JVE")
+        self.digit_3 = arcade.Text('3', self.digit_2.right + 10, self.window.center_y + 60, anchor_x = "left", anchor_y = "center", align = "left", font_size = 240, font_name = "8BITOPERATOR JVE")
+
+        self.digit_1_up = get_sprite("digi.combo.up")
+        self.digit_2_up = get_sprite("digi.combo.up")
+        self.digit_3_up = get_sprite("digi.combo.up")
+
+        self.digit_1_down = get_sprite("digi.combo.down")
+        self.digit_2_down = get_sprite("digi.combo.down")
+        self.digit_3_down = get_sprite("digi.combo.down")
+
+        # !: THESE ARE ALIGNED WRONG EVEN THOUGH THE MATH IS RIGHT I WANT TO EXPLODE
+        # I DON'T WANT TO CHEAT THE NUMBERS TO LOOK RIGHT BECAUSE THEN THE MATH IS WRONG
+        # I'M TIRED OF FUDGING THIS I THINK TEXT BOUNDS ARE JUST WRONG
+
+        self.digit_1_up.center_x = self.digit_1.x
+        self.digit_2_up.center_x = self.digit_2.x
+        self.digit_3_up.center_x = self.digit_3.x
+        self.digit_1_up.bottom = self.digit_1.top + 10
+        self.digit_2_up.bottom = self.digit_2.top + 10
+        self.digit_3_up.bottom = self.digit_3.top + 10
+
+        self.digit_1_down.center_x = self.digit_1.x
+        self.digit_2_down.center_x = self.digit_2.x
+        self.digit_3_down.center_x = self.digit_3.x
+        self.digit_1_down.top = self.digit_1.bottom - 10
+        self.digit_2_down.top = self.digit_2.bottom - 10
+        self.digit_3_down.top = self.digit_3.bottom - 10
+
+        self.digit_1_up.alpha = 0
+        self.digit_1_down.alpha = 0
+        self.digit_2_up.alpha = 0
+        self.digit_2_down.alpha = 0
+        self.digit_3_up.alpha = 0
+        self.digit_3_down.alpha = 0
+
+        self.spritelist = arcade.SpriteList()
+        self.spritelist.extend([self.digit_1_up, self.digit_1_down,
+                                self.digit_2_up, self.digit_2_down,
+                                self.digit_3_up, self.digit_3_down])
+
+        self.combination = random.randrange(000, 1000)
+        self.current_combination = self.generate_starting_combo()
+
+        self.selected_digit = 0
+        self.success_time = None
+
+        self.correct_sound = get_sound("digi.sounds.coin")
+        self.win_sound = get_sound("digi.sounds.win")
+        self.select_digit_sound = get_sound("digi.sounds.select")
+        self.select_number_sound = get_sound("digi.sounds.text")
+        self.cant_select_sound = get_sound("digi.sounds.cantselect")
+
+    @property
+    def intended_combo_string(self) -> str:
+        return f"{self.combination:03}"
+    
+    @property
+    def current_combo_string(self) -> str:
+        return f"{self.current_combination:03}"
+
+    def start(self):
+        self.combination = random.randrange(000, 1000)
+        self.current_combination = self.generate_starting_combo()
+        self.set_arrows()
+        self.highlight()
+        self.set_text()
+        self.selected_digit = 0
+        self.success_time = None
+
+    def generate_starting_combo(self) -> int:
+        combo = ""
+        all_digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        for digit in self.intended_combo_string:
+            d = int(digit)
+            combo += (str(random.choice([nd for nd in all_digits if nd != d])))
+        return int(combo)
+
+    def reset_arrows(self):
+        self.digit_1_up.alpha = 0
+        self.digit_1_down.alpha = 0
+        self.digit_2_up.alpha = 0
+        self.digit_2_down.alpha = 0
+        self.digit_3_up.alpha = 0
+        self.digit_3_down.alpha = 0
+
+    def set_arrows(self):
+        # This sucks.
+        self.reset_arrows()
+        for n, (i, c) in enumerate(zip(self.intended_combo_string, self.current_combo_string, strict = True)):
+            intended_digit = int(i)
+            current_digit = int(c)
+            if n == 0:
+                if intended_digit > current_digit:
+                    self.digit_1_up.alpha = 255
+                elif intended_digit < current_digit:
+                    self.digit_1_down.alpha = 255
+            elif n == 1:
+                if intended_digit > current_digit:
+                    self.digit_2_up.alpha = 255
+                elif intended_digit < current_digit:
+                    self.digit_2_down.alpha = 255
+            elif n == 2:
+                if intended_digit > current_digit:
+                    self.digit_3_up.alpha = 255
+                elif intended_digit < current_digit:
+                    self.digit_3_down.alpha = 255
+
+    def highlight(self):
+        for n, t in enumerate([self.digit_1, self.digit_2, self.digit_3]):
+            if t.text == self.intended_combo_string[n]:
+                t.color = arcade.color.GREEN
+            elif n == self.selected_digit:
+                t.color = arcade.color.YELLOW
+            else:
+                t.color = arcade.color.WHITE
+
+    def set_text(self):
+        for i, t in zip(self.current_combo_string, [self.digit_1, self.digit_2, self.digit_3], strict = True):
+            t.text = str(i)
+
+    def draw(self):
+        self.digit_1.draw()
+        self.digit_2.draw()
+        self.digit_3.draw()
+        self.spritelist.draw()
+
+    def update(self, delta_time: float):
+        self.set_arrows()
+        self.highlight()
+        self.set_text()
+
+        if self.success_time is not None and self.time > self.success_time + 1:
+            self.succeed()
+
+    def on_time_runout(self):
+        if self.current_combination == self.combination:
+            self.succeed()
+        else:
+            self.fail()
+
+    def handle_digit(self, up: bool):
+        c = self.current_combo_string
+        new_c = ""
+        for n, l in enumerate(c):
+            if n == self.selected_digit:
+                if up:
+                    new_l = str((int(l) + 1) % 10)
+                else:
+                    new_l = str((int(l) - 1) % 10)
+            else:
+                new_l = l
+            new_c += new_l
+        self.current_combination = int(new_c)
+        self.select_number_sound.play()
+        if self.current_combo_string[self.selected_digit] == self.intended_combo_string[self.selected_digit]:
+            self.correct_sound.play()
+
+    def on_input(self, symbol: int, modifier: int, pressed: bool):
+        if pressed and self.success_time is None:
+            if symbol == arcade.key.W or symbol == arcade.key.UP:
+                self.handle_digit(True)
+            elif symbol == arcade.key.S or symbol == arcade.key.DOWN:
+                self.handle_digit(False)
+            elif symbol == arcade.key.A or symbol == arcade.key.LEFT:
+                if self.selected_digit > 0:
+                    self.selected_digit -= 1
+                    self.select_digit_sound.play()
+                else:
+                    self.cant_select_sound.play()
+            elif symbol == arcade.key.D or symbol == arcade.key.RIGHT:
+                if self.selected_digit < 2:
+                    self.selected_digit += 1
+                    self.select_digit_sound.play()
+                else:
+                    self.cant_select_sound.play()
+            if self.current_combination == self.combination:
+                self.success_time = self.time
+                self.win_sound.play()
