@@ -1,4 +1,4 @@
-from arcade import Text, draw_text
+from arcade import Text
 
 from aware.graphics import style
 from aware.graphics.gradient import Gradient
