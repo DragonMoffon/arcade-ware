@@ -167,6 +167,14 @@ class PlayState:
     @property
     def has_play_finished(self) -> bool:
         return self._source.play_over
+    
+    @property
+    def max_strikes(self) -> int:
+        return MAX_STRIKE_COUNT
+
+    @property
+    def lives_remaining(self) -> int:
+        return self.max_strikes - self.strikes
 
     @property
     def on_last_life(self) -> bool:

@@ -9,8 +9,6 @@ import aware.graphics.style as style
 from engine.finder import get_loaded_fails, get_loaded_games, get_loaded_transitions
 from engine.play import PlayView
 
-SMALL_WAVE_SPEED = 14.3
-BIG_WAVE_SPEED = 10.0
 SPEEDUP = 8.0
 SPEED_TIME = 2.0
 MOVE_AMOUNT = -100
@@ -20,8 +18,8 @@ class MainMenuView(ArcadeView):
     def __init__(self) -> None:
         super().__init__()
         self.gradient = Gradient(self.window.rect, ((0.0, style.MENU_LIGHT), (0.5, style.MENU_MIDDLE), (1.0, style.MENU_DARK)), vertical=True)
-        self.wave_1 = Wave(LRBT(0, self.width, 0, 215), 110, 1300, SMALL_WAVE_SPEED, 0.0, style.MENU_YELLOW, Wave.TOP_FACE, 3)
-        self.wave_2 = Wave(LRBT(0, self.width, 0, 290), 135, 2000, BIG_WAVE_SPEED, 0.0, style.MENU_YELLOW, Wave.TOP_FACE, 3)
+        self.wave_1 = Wave(LRBT(0, self.width, 0, 215), 110, 1300, style.SMALL_WAVE_SPEED, 0.0, style.MENU_YELLOW, Wave.TOP_FACE, 3)
+        self.wave_2 = Wave(LRBT(0, self.width, 0, 290), 135, 2000, style.BIG_WAVE_SPEED, 0.0, style.MENU_YELLOW, Wave.TOP_FACE, 3)
 
         self.spritelist = SpriteList()
 
