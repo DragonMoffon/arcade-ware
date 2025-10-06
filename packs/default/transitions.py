@@ -22,23 +22,25 @@ class DefaultTransition(Transition):
                                 font_size = 24, font_name = "A-OTF Shin Go Pro", bold = True)
         self.text_shadow = arcade.Text("", self.state.screen_width/2.0 + SHADOW_DISTANCE, self.state.screen_height/4.0 - SHADOW_DISTANCE, anchor_x="center", anchor_y="center",
                                        font_size = 24, font_name = "A-OTF Shin Go Pro", bold = True, color = arcade.color.BLACK.replace(a = 128))
-        self.text2 = arcade.Text("", self.state.screen_width/2.0, self.state.screen_height * 0.85, anchor_x="center", anchor_y="center",
-                                 font_size = 48, font_name = "A-OTF Shin Go Pro", bold = True)
-        self.text2_shadow = arcade.Text("", self.state.screen_width/2.0 + SHADOW_DISTANCE, self.state.screen_height * 0.85 - SHADOW_DISTANCE, anchor_x="center", anchor_y="center",
-                                        font_size = 48, font_name = "A-OTF Shin Go Pro", bold = True, color = arcade.color.BLACK.replace(a = 128))
         
         self.heart_1 = get_sprite("default.heart")
         self.heart_2 = get_sprite("default.heart")
         self.heart_3 = get_sprite("default.heart")
         self.heart_4 = get_sprite("default.heart")
 
-        self.heart_1.left = self.window.rect.left + 10
-        self.heart_2.left = self.heart_1.right + 25
-        self.heart_4.right = self.window.rect.right - 10
-        self.heart_3.right = self.heart_4.left - 25
         for s in [self.heart_1, self.heart_2, self.heart_3, self.heart_4]:
-            s.top = self.window.rect.top - 10
-        self.heart_1.position
+            s.scale = 0.75
+            s.top = self.window.rect.top - 20
+
+        self.heart_1.left = self.window.rect.left + 20
+        self.heart_2.left = self.heart_1.right + 30
+        self.heart_4.right = self.window.rect.right - 20
+        self.heart_3.right = self.heart_4.left - 30
+
+        self.text2 = arcade.Text("", self.state.screen_width/2.0, self.heart_1.center_y, anchor_x="center", anchor_y="center",
+                                 font_size = 48, font_name = "A-OTF Shin Go Pro", bold = True)
+        self.text2_shadow = arcade.Text("", self.state.screen_width/2.0 + SHADOW_DISTANCE, self.heart_1.center_y - SHADOW_DISTANCE, anchor_x="center", anchor_y="center",
+                                        font_size = 48, font_name = "A-OTF Shin Go Pro", bold = True, color = arcade.color.BLACK.replace(a = 128))
     
     def update(self, delta_time: float):
         self.wave_1.time = self.wave_2.time = self.state.total_time
