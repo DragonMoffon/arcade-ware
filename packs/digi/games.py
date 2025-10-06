@@ -156,9 +156,10 @@ class SortGame(Game):
         else:
             if self.selected_ball:
                 self.selected_ball.position = self.cursor_pos if (self.cursor_pos in self.red_side or self.cursor_pos in self.blue_side) else self.selected_ball.position
-            if self.completed and not self.sorting_done:
+            if self.completed and not self.sorting_done and not self.finish_time:
                 self.finish_time = self.time
                 self.sorting_done = True
+
         if self.time > self.finish_time + 1:
             self.succeed()
 
@@ -358,6 +359,8 @@ class PencilSharpeningGame(Game):
 
         self.cm_text = arcade.Text('10.0cm', self.window.width - 10, self.window.height - 10, anchor_x = "right", anchor_y = "top", align = "right", font_size = 48, font_name = "A-OTF Shin Go Pro", bold = True)
 
+        self.fail_time: float | None = None
+
     @property
     def failed(self) -> bool:
         return self.hits > NEEDED_HITS
@@ -374,6 +377,8 @@ class PencilSharpeningGame(Game):
 
         self.cm_text.text = f"{PENCIL_CENTIMETERS * (1 - self.hits / NEEDED_HITS):.1f}cm"
         self.cm_text.color = arcade.color.WHITE
+
+        self.fail_time = None
 
     def draw(self):
         self.spritelist.draw()
@@ -410,6 +415,12 @@ class PencilSharpeningGame(Game):
                 self.red_x.alpha = 255
                 self.fail_sound.play(volume = 0.5)
                 self.cm_text.color = arcade.color.RED
+                self.fail_time = self.time
+
+    def update(self, delta_time: float):
+        if self.fail_time:
+            if self.time > self.fail_time + 0.5:
+                self.fail()
 
 CHOP_REGION_SIZE = 100
 MOVE_SPEED = 1.0
@@ -579,10 +590,16 @@ class ComboLockGame(Game):
         self.digit_3.draw()
         self.spritelist.draw()
 
-        # !: YEAH THE RECTS ARE WRONG AS HELL WHAT THE FRICK IS THIS
         # for t in [self.digit_1, self.digit_2, self.digit_3]:
+        #     # OG method
         #     r = arcade.rect.LRBT(t.left, t.right, t.bottom, t.top)
         #     arcade.draw_rect_outline(r, arcade.color.MAGENTA, 3)
+
+        #     # Pyglet method
+        #     font = t.label.document.get_font(0)
+        #     bounds = font.get_text_size(t.text)
+        #     gr = arcade.rect.LBWH(t.left, t.bottom, *bounds)
+        #     arcade.draw_rect_outline(gr, arcade.color.YELLOW, 3)
 
     def update(self, delta_time: float):
         self.set_arrows()
