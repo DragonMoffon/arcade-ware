@@ -113,6 +113,7 @@ class SortGame(Game):
 
     @property
     def completed(self) -> bool:
+        # !: This doesn't always seem to work??
         return (all([ball.position in self.red_side for ball in self.red_balls]) and
                 all([ball.position in self.blue_side for ball in self.blue_balls]))
 
@@ -477,6 +478,7 @@ class ComboLockGame(Game):
         # !: THESE ARE ALIGNED WRONG EVEN THOUGH THE MATH IS RIGHT I WANT TO EXPLODE
         # I DON'T WANT TO CHEAT THE NUMBERS TO LOOK RIGHT BECAUSE THEN THE MATH IS WRONG
         # I'M TIRED OF FUDGING THIS I THINK TEXT BOUNDS ARE JUST WRONG
+        # *: EDIT: Blame Pyglet, text has terrible bounds actually
 
         self.digit_1_up.center_x = self.digit_1.left + self.digit_1.content_width / 2
         self.digit_2_up.center_x = self.digit_2.left + self.digit_2.content_width / 2
