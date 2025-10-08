@@ -1,12 +1,16 @@
 # ARCADE WARE
 A simple warioware-esk engine built in python arcade.
 
-### TODO
+### TODO (sort-of sorted by importance)
 - Finish PackManager and Pack loading
 - Make duration and remaining time settable
 - arbitrary scaling
 - Boss Games (appears every x games, repeats untill beaten or all lives lost, usually infinite-duration)
+- Better control info, not just a name pointer for a texture
+- Single Pack Play, Play Order, Endless Mode, Grab-Bag
+- Resources inside pack folder for the stinky wasteful people.
 - Pooled resources
+- Ability to make custom "external only" packs
 
 ### Games To Make
 - Sort Inventory
