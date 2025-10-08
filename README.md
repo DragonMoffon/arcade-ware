@@ -3,7 +3,7 @@ A simple warioware-esk engine built in python arcade.
 
 ### TODO (sort-of sorted by importance)
 - Finish PackManager and Pack loading
-- Make duration and remaining time settable
+- ~~Make duration and remaining time settable~~
 - arbitrary scaling
 - Boss Games (appears every x games, repeats untill beaten or all lives lost, usually infinite-duration)
 - Better control info, not just a name pointer for a texture

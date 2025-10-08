@@ -45,9 +45,22 @@ class Display:
         return self.state.display_time
     
     @property
+    def duration(self) -> float:
+        """The time from start that this display will call `on_timeout`."""
+        return self._duration
+    
+    @duration.setter
+    def duration(self, v: float) -> None:
+        self._duration = v
+    
+    @property
     def remaining_time(self) -> float:
         """The time until this display ends (may be infinite)."""
         return self.state.remaining_time
+    
+    @remaining_time.setter
+    def remaining_time(self, v: float):
+        self._duration = self.time + v
     
     @property
     def tick_speed(self) -> float:
@@ -59,10 +72,6 @@ class Display:
 
     def on_input(self, symbol: int, modifier: int, pressed: bool):
         pass
-
-    @property
-    def duration(self):
-        return self._duration
     
     @classmethod
     def create(cls, state: PlayState) -> Self:
@@ -220,7 +229,7 @@ class PlayState:
     def display_time(self) -> float:
         # The time elapsed since the current display was shown
         return self._source.play_clock.time - self._source.display_time
-    
+
     @property
     def remaining_time(self) -> float:
         # The time left for the current game
