@@ -54,7 +54,10 @@ class ShakeEmUp(Game):
 
     def on_input(self, symbol: int, modifier: int, pressed: bool):
         if arcade.MOUSE_BUTTON_LEFT == symbol:
-            self.dragging = pressed
+            if self.box.collides_with_point(self.state.cursor_position) and pressed:
+                self.dragging = True
+            elif not pressed:
+                self.dragging = False
             pos = self.state.cursor_position
             self.sep = self.box.center_x - pos[0], self.box.center_y - pos[1]
 
