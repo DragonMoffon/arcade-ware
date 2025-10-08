@@ -93,7 +93,6 @@ class SortGame(Game):
         self.red_side = self.window.rect.scale_axes((0.5, 1.0), AnchorPoint.CENTER_LEFT)
         self.blue_side = self.window.rect.scale_axes((0.5, 1.0), AnchorPoint.CENTER_RIGHT)
 
-        self.cursor_pos = (0, 0)
         self.selected_ball: arcade.SpriteCircle | None = None
 
         self.scrambling_done = False
@@ -158,7 +157,7 @@ class SortGame(Game):
                 self.scramble()
         else:
             if self.selected_ball:
-                self.selected_ball.position = self.cursor_pos if (self.cursor_pos in self.red_side or self.cursor_pos in self.blue_side) else self.selected_ball.position
+                self.selected_ball.position = self.state.cursor_position
             if self.completed and not self.sorting_done and not self.finish_time:
                 self.finish_time = self.time
                 self.sorting_done = True
@@ -172,13 +171,10 @@ class SortGame(Game):
         else:
             self.fail()
 
-    def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
-        self.cursor_pos = (x, y)
-
     def on_input(self, symbol: int, modifier: int, pressed: bool):
         if symbol == arcade.MOUSE_BUTTON_LEFT and pressed and not self.sorting_done:
             for ball in self.all_balls:
-                if ball.collides_with_point(self.cursor_pos):
+                if ball.collides_with_point(self.state.cursor_position):
                     self.selected_ball = ball
         elif symbol == arcade.MOUSE_BUTTON_LEFT and not pressed:
             self.selected_ball = None
@@ -256,8 +252,6 @@ class WhackAMoleGame(Game):
         self.game_won = False
         self.won_text = arcade.Text('GOOD JOB!', self.window.center_x, self.window.center_y, anchor_x = "center", anchor_y = "center", font_size = 72, font_name = "A-OTF Shin Go Pro", bold = True)
 
-        self.cursor_pos = (0, 0)
-
     def grid_layout(self):
         for c in range(GRID_COLUMNS):
             for r in range(GRID_ROWS):
@@ -303,12 +297,9 @@ class WhackAMoleGame(Game):
     def on_input(self, symbol: int, modifier: int, pressed: bool):
         if symbol == arcade.MOUSE_BUTTON_LEFT and pressed:
             for s in self.sprites:
-                if s.collides_with_point(self.cursor_pos):
+                if s.collides_with_point(self.state.cursor_position):
                     s.color = arcade.color.RED
                     break
-
-    def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
-        self.cursor_pos = (x, y)
 
 CSB_TO_AW = (720 / 1080)
 NEEDED_HITS = 20
@@ -668,7 +659,6 @@ class SliderGame(Game):
         self.intended_value = random.randrange(0, 100)
 
         self.time_correct = 0.0
-        self.cursor_pos = (0, 0)
 
         self.text = arcade.Text(str(self.intended_value), self.window.center_x, self.window.center_y + 60, anchor_x = "center", anchor_y = "center", align = "center", font_size = 240, font_name = "8BITOPERATOR JVE")
         self.slider_text = arcade.Text("0", self.window.center_x, self.slider.rect.top + 10, anchor_x = "center", anchor_y = "bottom", align = "center", font_size = 48, font_name = "8BITOPERATOR JVE", color = arcade.color.GRAY)
@@ -697,7 +687,7 @@ class SliderGame(Game):
             self.succeed()
         self.slider_text.text = str(self.slider.value)
         if self.slider.grabbed:
-            self.slider.update(arcade.Vec2(*self.cursor_pos))
+            self.slider.update(arcade.Vec2(*self.state.cursor_position))
 
         if self.slider.value == self.intended_value:
             self.time_correct += delta_time
@@ -707,11 +697,7 @@ class SliderGame(Game):
 
     def on_input(self, symbol: int, modifier: int, pressed: bool):
         if symbol == arcade.MOUSE_BUTTON_LEFT and pressed:
-            if self.cursor_pos in self.slider.handle_rect:
+            if self.state.cursor_position in self.slider.handle_rect:
                 self.slider.grabbed = True
         elif not pressed:
             self.slider.grabbed = False
-
-    def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
-        # * I do this a lot -- should it just exist?
-        self.cursor_pos = (x, y)
