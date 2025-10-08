@@ -1,6 +1,13 @@
 # ARCADE WARE
 A simple warioware-esk engine built in python arcade.
 
+### TODO
+- Finish PackManager and Pack loading
+- Make duration and remaining time settable
+- arbitrary scaling
+- Boss Games (appears every x games, repeats untill beaten or all lives lost, usually infinite-duration)
+- Pooled resources
+
 ### Games To Make
 - Sort Inventory
 

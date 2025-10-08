@@ -246,7 +246,7 @@ class WhackAMoleGame(Game):
         self.spritelist = arcade.SpriteList()
         self.spritelist.extend(self.sprites)
 
-        self.bounds = self.window.rect.scale(0.8).align_top(self.window.height)
+        self.bounds = self.window.rect.scale(0.8).align_top(self.window.height-SPOT_SIZE)
         self.bounds = self.bounds.resize(self.bounds.width - SPOT_SIZE * 2, self.bounds.height - SPOT_SIZE * 2)
 
         self.grid_layout()
@@ -678,7 +678,7 @@ class SliderGame(Game):
         self.slider_text.draw()
 
     def on_time_runout(self):
-        if self.time_correct >= IN_TIME_NEEDED:
+        if self.intended_value == self.slider.value:
             self.succeed()
         else:
             self.fail()
