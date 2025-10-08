@@ -115,8 +115,7 @@ class SortGame(Game):
     @property
     def completed(self) -> bool:
         # !: This doesn't always seem to work??
-        return (all([ball.position in self.red_side for ball in self.red_balls]) and
-                all([ball.position in self.blue_side for ball in self.blue_balls]))
+        return all([red_ball.position in self.red_side for red_ball in self.red_balls]) and all([blue_ball.position in self.blue_side for blue_ball in self.blue_balls])
 
     def check_scramble(self) -> bool:
         if self.completed or self.time < 1:
@@ -131,6 +130,8 @@ class SortGame(Game):
     def start(self):
         self.scrambling_done = False
         self.sorting_done = False
+        self.finish_time = float("inf")
+        self.selected_ball = None
 
     def finish(self):
         ...
@@ -158,7 +159,7 @@ class SortGame(Game):
         else:
             if self.selected_ball:
                 self.selected_ball.position = self.state.cursor_position
-            if self.completed and not self.sorting_done and not self.finish_time:
+            if self.completed and not self.sorting_done:
                 self.finish_time = self.time
                 self.sorting_done = True
 
