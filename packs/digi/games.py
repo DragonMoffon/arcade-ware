@@ -5,8 +5,10 @@ import arcade
 from arcade.types import AnchorPoint
 
 from aware.anim import bounce, lerp
+from aware.utils import clamp, map_range
 from engine.play import ContentFlag, PlayState, Game
 from engine.resources import get_sound, get_sprite
+from packs.digi.lib.slider import Slider
 
 from .lib import noa
 
@@ -655,3 +657,61 @@ class ComboLockGame(Game):
             if self.current_combination == self.combination:
                 self.success_time = self.time
                 self.win_sound.play()
+
+IN_TIME_NEEDED = 1.0
+
+class SliderGame(Game):
+    def __init__(self, state: PlayState) -> None:
+        super().__init__(state, prompt = "SLIDE!", controls = "default.inputs.mouse", duration = 6.0)
+        self.slider = Slider(arcade.XYWH(self.window.center_x, self.window.center_y * 0.25, self.window.width * 0.75, 25),
+                             inner_color = arcade.color.SLATE_GRAY, rounding_function = int)
+        self.intended_value = random.randrange(0, 100)
+
+        self.time_correct = 0.0
+        self.cursor_pos = (0, 0)
+
+        self.text = arcade.Text(str(self.intended_value), self.window.center_x, self.window.center_y + 60, anchor_x = "center", anchor_y = "center", align = "center", font_size = 240, font_name = "8BITOPERATOR JVE")
+        self.slider_text = arcade.Text("0", self.window.center_x, self.slider.rect.top + 10, anchor_x = "center", anchor_y = "bottom", align = "center", font_size = 48, font_name = "8BITOPERATOR JVE", color = arcade.color.GRAY)
+
+    def start(self):
+        self.slider.value = 0
+        self.intended_value = random.randrange(0, 100)
+        self.time_correct = 0.0
+        self.text.text = str(self.intended_value)
+        self.slider_text.text = "0"
+        self.slider.grabbed = False
+
+    def draw(self):
+        self.slider.draw()
+        self.text.draw()
+        self.slider_text.draw()
+
+    def on_time_runout(self):
+        if self.time_correct >= IN_TIME_NEEDED:
+            self.succeed()
+        else:
+            self.fail()
+
+    def update(self, delta_time: float):
+        if self.time_correct >= IN_TIME_NEEDED:
+            self.succeed()
+        self.slider_text.text = str(self.slider.value)
+        if self.slider.grabbed:
+            self.slider.update(arcade.Vec2(*self.cursor_pos))
+
+        if self.slider.value == self.intended_value:
+            self.time_correct += delta_time
+
+        rb = int(clamp(0, map_range(self.time_correct, 0, IN_TIME_NEEDED, 255, 0), 255))
+        self.text.color = (rb, 255, rb)
+
+    def on_input(self, symbol: int, modifier: int, pressed: bool):
+        if symbol == arcade.MOUSE_BUTTON_LEFT and pressed:
+            if self.cursor_pos in self.slider.handle_rect:
+                self.slider.grabbed = True
+        elif not pressed:
+            self.slider.grabbed = False
+
+    def on_cursor_motion(self, x: float, y: float, dx: float, dy: float):
+        # * I do this a lot -- should it just exist?
+        self.cursor_pos = (x, y)
