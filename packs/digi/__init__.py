@@ -1,3 +1,4 @@
+from engine.resources import load_font
 from .games import DoNothingGame
 from .charm import CharmGame
 
@@ -9,6 +10,7 @@ __all__ = [
 ]
 
 def setup():
+    load_font("digi.8bojve")
     return Pack(
         games=(DoNothingGame, CharmGame),
         transitions=(),
