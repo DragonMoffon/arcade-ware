@@ -88,9 +88,10 @@ def load_resources() -> None:
     for current, _, files in pth.walk():
         for file in files:
             sep = file.split('.')
-            if sep[-1] not in EXTENSION_MAP:
+            ext = sep[-1].lower()
+            if ext not in EXTENSION_MAP:
                 continue
-            mapping = EXTENSION_MAP[sep[-1]]
+            mapping = EXTENSION_MAP[ext]
             parts = current.parts[depth:] + (sep[0],)
             namespace = ".".join(parts)
             mapping.add(namespace, current / file)
