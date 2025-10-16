@@ -6,13 +6,19 @@ from aware.data.loading import load_sprite
 from aware.graphics.gradient import Gradient
 from aware.graphics.wave import Wave
 import aware.graphics.style as style
-from engine.finder import get_loaded_fails, get_loaded_games, get_loaded_transitions
+from engine.finder import packs
 from engine.play import PlayView
 
 SPEEDUP = 8.0
 SPEED_TIME = 2.0
 MOVE_AMOUNT = -100
 FOREVER = float("inf")
+
+# ! EDIT HERE TO FILTER GAMES
+# TODO: pack filter
+GAME_FILTER: tuple[str,  ...] = () # Game filter
+TRANSITION_FILTER: tuple[str,  ...] = () # Transition filter
+FAIL_FILTER: tuple[str,  ...] = () # Fail filter
 
 class MainMenuView(ArcadeView):
     def __init__(self) -> None:
@@ -63,8 +69,25 @@ class MainMenuView(ArcadeView):
             self.play_button.center_x = pos
 
         if GLOBAL_CLOCK.time > self.click_time + SPEED_TIME:
-            filter = []  # !: EDIT THIS TO TEST GAMES
-            play_view = PlayView(tuple(get_loaded_games()), tuple(get_loaded_transitions()), tuple(get_loaded_fails()), filter)
+            self.launch_play_view()
+
+    def launch_play_view(self):
+            if GAME_FILTER:
+                games = (packs.get_game(game) for game in GAME_FILTER)
+            else:
+                games = packs.get_all_games()
+
+            if TRANSITION_FILTER:
+                transitions = (packs.get_transition(transition) for transition in TRANSITION_FILTER)
+            else:
+                transitions = packs.get_all_transitions()
+
+            if FAIL_FILTER:
+                fails = (packs.get_fail(fail) for fail in FAIL_FILTER)
+            else:
+                fails = packs.get_all_fails()
+
+            play_view = PlayView(games, transitions, fails)
             self.window.show_view(play_view)
 
     def on_draw(self) -> None:

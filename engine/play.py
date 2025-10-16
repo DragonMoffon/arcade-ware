@@ -1,6 +1,6 @@
 from __future__ import annotations
 from enum import Flag, auto
-from typing import Self
+from typing import Self, Iterable
 from random import shuffle, choice
 
 from arcade import Vec2, Text, Sprite, View as ArcadeView, draw_sprite
@@ -254,8 +254,7 @@ class PlayState:
 
 class PlayView(ArcadeView):
     
-    def __init__(self, games: tuple[type[Game], ...], transitions: tuple[type[Transition], ...], fails: tuple[type[Fail], ...],
-                 filter: list[str] = []):
+    def __init__(self, games: Iterable[type[Game]], transitions: Iterable[type[Transition]], fails: Iterable[type[Fail]]):
         ArcadeView.__init__(self)
         # Store the cursor position incase either the Game or Transition want to use it.
         self._cursor_position: tuple[float, float] = (0.0, 0.0)
@@ -291,9 +290,6 @@ class PlayView(ArcadeView):
         self._games: tuple[Game, ...] = tuple(game.create(self.state) for game in games)
         self._transitions: tuple[Transition, ...] = tuple(transition.create(self.state) for transition in transitions)
         self._fails: tuple[Fail, ...] = tuple(fail.create(self.state) for fail in fails)
-
-        if filter:
-            self._games = tuple([g for g in self._games if g.__class__.__name__ in filter])
 
         # Whether or not to use bags to pick which game/transition to use.
         self._pick_games_bagged: bool = True
