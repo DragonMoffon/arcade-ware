@@ -262,7 +262,7 @@ def _setup_pack(pack_module: _PackModule) -> Generator[Pack, None, None]:
 
         if pack.name is None:
             if anonymous_pack:
-                print(f"More than one anonymous pack were created by {origin.stem}")
+                print(f"More than one anonymous pack was created by {origin.stem}, Only the first pack will be loaded")
                 break
             object.__setattr__(pack, "name", origin.stem)
             object.__setattr__(pack, "space_name", origin.stem)
