@@ -16,7 +16,7 @@ FOREVER = float("inf")
 
 # ! EDIT HERE TO FILTER GAMES
 # TODO: pack filter
-GAME_FILTER: tuple[str,  ...] = () # Game filter
+GAME_FILTER: tuple[str,  ...] = ("fun.ShooterGame",) # Game filter
 TRANSITION_FILTER: tuple[str,  ...] = () # Transition filter
 FAIL_FILTER: tuple[str,  ...] = () # Fail filter
 
